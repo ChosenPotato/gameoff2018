@@ -36,7 +36,7 @@ namespace gameoff2018
 
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
-            GL.Ortho(-1.0, 1.0, -1.0, 1.0, 0.0, 4.0);
+            GL.Ortho(0, Width, 0, Height, 0, 1);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -51,13 +51,13 @@ namespace gameoff2018
             GL.ClearColor(backColor);
 
             GL.Enable(EnableCap.Texture2D);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
 
             GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
 
             GL.GenTextures(1, out texture);
             GL.BindTexture(TextureTarget.Texture2D, texture);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
 
             BitmapData data = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height),
                 ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
@@ -66,6 +66,8 @@ namespace gameoff2018
                 OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
 
             bitmap.UnlockBits(data);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
         }
 
         protected override void OnUnload(EventArgs e)
@@ -77,7 +79,7 @@ namespace gameoff2018
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            angle += e.Time * Math.PI;
+            angle += e.Time * Math.PI / 6;
 
             HandleKeyboard();
         }
@@ -105,15 +107,16 @@ namespace gameoff2018
 
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
+            GL.Translate(300, 300, 0);
             GL.Rotate(RadiansToDegrees(angle), 0, 0, 1);
             GL.BindTexture(TextureTarget.Texture2D, texture);
 
             GL.Begin(PrimitiveType.Quads);
 
-            GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(-0.4f, -0.4f);
-            GL.TexCoord2(1.0f, 1.0f); GL.Vertex2(0.4f, -0.4f);
-            GL.TexCoord2(1.0f, 0.0f); GL.Vertex2(0.4f, 0.4f);
-            GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(-0.4f, 0.4f);
+            GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(-100, -100);
+            GL.TexCoord2(1.0f, 1.0f); GL.Vertex2( 100, -100);
+            GL.TexCoord2(1.0f, 0.0f); GL.Vertex2( 100,  100);
+            GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(-100,  100);
 
             GL.End();
 
