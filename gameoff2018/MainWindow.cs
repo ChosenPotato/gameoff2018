@@ -10,9 +10,11 @@ namespace gameoff2018
 {
     public sealed class MainWindow : GameWindow
     {
-        Bitmap bitmap = new Bitmap("tex.png");
-        int texture = -1;
-        double angle = 0.0;
+        Bitmap TexBmp = new Bitmap("tex.png");
+        int Texture = -1;
+        double Angle = 0.0;
+        double XPosition = 0.0;
+        KeyboardState LatestKeyState;
 
         public MainWindow(): base
             (
@@ -56,39 +58,49 @@ namespace gameoff2018
 
             GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
 
-            GL.GenTextures(1, out texture);
-            GL.BindTexture(TextureTarget.Texture2D, texture);
+            GL.GenTextures(1, out Texture);
+            GL.BindTexture(TextureTarget.Texture2D, Texture);
 
-            BitmapData data = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height),
+            BitmapData data = TexBmp.LockBits(new System.Drawing.Rectangle(0, 0, TexBmp.Width, TexBmp.Height),
                 ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, data.Width, data.Height, 0,
                 OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
 
-            bitmap.UnlockBits(data);
+            TexBmp.UnlockBits(data);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
         }
 
         protected override void OnUnload(EventArgs e)
         {
-            GL.DeleteTextures(1, ref texture);
+            GL.DeleteTextures(1, ref Texture);
 
             base.OnUnload(e);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            angle += e.Time * Math.PI / 6;
+            Angle += e.Time * Math.PI / 6;
 
             HandleKeyboard();
+
+            if (LatestKeyState.IsKeyDown(Key.Left))
+                XPosition -= e.Time * 200;
+            if (LatestKeyState.IsKeyDown(Key.Right))
+                XPosition += e.Time * 200;
+
+            if (XPosition < -100)
+                XPosition = -100;
+            if (XPosition > 100)
+                XPosition = 100;
         }
 
         private void HandleKeyboard()
         {
-            var keyState = Keyboard.GetState();
+            LatestKeyState = Keyboard.GetState();
 
-            if (keyState.IsKeyDown(Key.Escape))
+            if (LatestKeyState.IsKeyDown(Key.Escape))
             {
                 Exit();
             }
@@ -107,16 +119,16 @@ namespace gameoff2018
 
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
-            GL.Translate(300, 300, 0);
-            GL.Rotate(RadiansToDegrees(angle), 0, 0, 1);
-            GL.BindTexture(TextureTarget.Texture2D, texture);
+            GL.Translate(300 + XPosition, 300, 0);
+            GL.Rotate(RadiansToDegrees(Angle), 0, 0, 1);
+            GL.BindTexture(TextureTarget.Texture2D, Texture);
 
             GL.Begin(PrimitiveType.Quads);
 
-            GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(-100, -100);
-            GL.TexCoord2(1.0f, 1.0f); GL.Vertex2( 100, -100);
-            GL.TexCoord2(1.0f, 0.0f); GL.Vertex2( 100,  100);
-            GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(-100,  100);
+            GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(-50, -50);
+            GL.TexCoord2(1.0f, 1.0f); GL.Vertex2( 50, -50);
+            GL.TexCoord2(1.0f, 0.0f); GL.Vertex2( 50,  50);
+            GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(-50,  50);
 
             GL.End();
 
