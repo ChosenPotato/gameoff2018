@@ -12,6 +12,7 @@ namespace gameoff2018
     {
         Bitmap bitmap = new Bitmap("tex.png");
         int texture = -1;
+        double angle = 0.0;
 
         public MainWindow(): base
             (
@@ -76,6 +77,8 @@ namespace gameoff2018
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
+            angle += e.Time * Math.PI;
+
             HandleKeyboard();
         }
 
@@ -89,6 +92,11 @@ namespace gameoff2018
             }
         }
 
+        public double RadiansToDegrees(double rads)
+        {
+            return rads * (180 / Math.PI);
+        }
+
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             Title = $"(Vsync: {VSync}) FPS: {1f / e.Time:0}";
@@ -97,6 +105,7 @@ namespace gameoff2018
 
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
+            GL.Rotate(RadiansToDegrees(angle), 0, 0, 1);
             GL.BindTexture(TextureTarget.Texture2D, texture);
 
             GL.Begin(PrimitiveType.Quads);
