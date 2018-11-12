@@ -10,7 +10,9 @@ namespace gameoff2018
 {
     public sealed class MainWindow : GameWindow
     {
-        Bitmap TexBmp = new Bitmap("tex.png");
+        public static readonly double LAVA_BOMB_SIZE = 50;
+
+        Bitmap TexBmp = new Bitmap(@"assets\lava-bomb.png");
         int Texture = -1;
         double Angle = 0.0;
         double XPosition = 0.0;
@@ -47,10 +49,13 @@ namespace gameoff2018
 
             Color4 backColor;
             backColor.A = 1.0f;
-            backColor.R = 0.1f;
-            backColor.G = 0.1f;
-            backColor.B = 0.3f;
+            backColor.R = 0.5f;
+            backColor.G = 0.5f;
+            backColor.B = 0.5f;
             GL.ClearColor(backColor);
+
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
             GL.Enable(EnableCap.Texture2D);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
@@ -81,7 +86,7 @@ namespace gameoff2018
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            Angle += e.Time * Math.PI / 6;
+            Angle += e.Time * Math.PI;
 
             HandleKeyboard();
 
@@ -125,10 +130,10 @@ namespace gameoff2018
 
             GL.Begin(PrimitiveType.Quads);
 
-            GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(-50, -50);
-            GL.TexCoord2(1.0f, 1.0f); GL.Vertex2( 50, -50);
-            GL.TexCoord2(1.0f, 0.0f); GL.Vertex2( 50,  50);
-            GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(-50,  50);
+            GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(-LAVA_BOMB_SIZE, -LAVA_BOMB_SIZE);
+            GL.TexCoord2(1.0f, 1.0f); GL.Vertex2( LAVA_BOMB_SIZE, -LAVA_BOMB_SIZE);
+            GL.TexCoord2(1.0f, 0.0f); GL.Vertex2( LAVA_BOMB_SIZE,  LAVA_BOMB_SIZE);
+            GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(-LAVA_BOMB_SIZE,  LAVA_BOMB_SIZE);
 
             GL.End();
 
