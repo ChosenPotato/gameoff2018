@@ -28,15 +28,9 @@ namespace gameoff2018
 
     public sealed class MainWindow : GameWindow
     {
-        public static readonly double LAVA_BOMB_SIZE = 20;
-        public static readonly double GRAVITY = 360.0;
+        OpenGlContext GlContext = null;
+        ActiveLevel Level = new ActiveLevel();
 
-        public List<LavaBombEntity> LavaBombs = new List<LavaBombEntity>();
-        
-        TexObject lavaBombTexObj = new TexObject(@"assets\lava-bomb.png");
-        TexObject tileTexObj = new TexObject(@"assets\tile.png");
-        double Angle = 0.0;
-        double XPosition = 0.0;
         KeyboardState LatestKeyState;
         double ScreenHeight = 720.0;
 
@@ -68,81 +62,21 @@ namespace gameoff2018
         protected override void OnLoad(EventArgs e)
         {
             CursorVisible = true;
+            GlContext = new OpenGlContext(Level);
 
-            Color4 backColor;
-            backColor.A = 1.0f;
-            backColor.R = 0.5f;
-            backColor.G = 0.5f;
-            backColor.B = 0.5f;
-            GL.ClearColor(backColor);
-
-            GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-
-            GL.Enable(EnableCap.Texture2D);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-
-            GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
-
-            lavaBombTexObj.GlInit();
-            tileTexObj.GlInit();
-
-            LavaBombs.Add(new LavaBombEntity(new Vector2d(300, 300), new Vector2d(0, 360), 4));
             Debug.WriteLine("Added from OnLoad");
         }
 
         protected override void OnUnload(EventArgs e)
         {
-            lavaBombTexObj.Dispose();
-            tileTexObj.Dispose();
-
             base.OnUnload(e);
-        }
-
-        public static Vector2d VectorFromAngle(double radians)
-        {
-            return new Vector2d
-            (
-                Math.Sin(radians),
-                Math.Cos(radians)
-            );
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            Angle += e.Time * Math.PI;
-
             HandleKeyboard();
 
-            if (LatestKeyState.IsKeyDown(Key.Left))
-                XPosition -= e.Time * 200;
-            if (LatestKeyState.IsKeyDown(Key.Right))
-                XPosition += e.Time * 200;
-
-            if (XPosition < -100)
-                XPosition = -100;
-            if (XPosition > 100)
-                XPosition = 100;
-
-            foreach (LavaBombEntity b in LavaBombs)
-            {
-                b.Velocity.Y -= GRAVITY * e.Time;
-                b.Position += b.Velocity * e.Time;
-            }
-
-            IEnumerable<LavaBombEntity> toSpawnFrom =
-                LavaBombs
-                .Where(x => x.Level > 1 && x.TimeCreated + 1000 <= DateTimeOffset.Now.ToUnixTimeMilliseconds());
-            LavaBombs =
-                LavaBombs
-                .Where(x => x.TimeCreated + 1000 > DateTimeOffset.Now.ToUnixTimeMilliseconds())
-                .ToList();
-            IEnumerable<Vector2d> vecs = Enumerable.Range(1, 10).Select(x => Math.PI * 2 / 10 * x).Select(x => VectorFromAngle(x) * 100.0);
-            IEnumerable<LavaBombEntity> spawned =
-                toSpawnFrom.SelectMany(x => vecs.Select(y => new LavaBombEntity(x.Position, x.Velocity + y * x.Level, x.Level - 1)));
-
-            LavaBombs = LavaBombs.Concat(spawned).ToList();
+            Level.Update(LatestKeyState, e.Time);
         }
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
@@ -152,7 +86,7 @@ namespace gameoff2018
             double x = e.X;
             double y = ScreenHeight - e.Y;
             
-            LavaBombs.Add(new LavaBombEntity(new Vector2d(x, y), new Vector2d(0, 360), 3));
+            Level.LavaBombs.Add(new LavaBombEntity(new Vector2d(x, y), new Vector2d(0, 360), 3));
         }
 
         private void HandleKeyboard()
@@ -169,21 +103,7 @@ namespace gameoff2018
         {
             Title = $"(Vsync: {VSync}) FPS: {1f / e.Time:0}";
 
-            GL.Clear(ClearBufferMask.ColorBufferBit);
-
-            GL.MatrixMode(MatrixMode.Modelview);
-
-            GL.LoadIdentity();
-            GL.Translate(200, 200, 0);
-            tileTexObj.GlRender(64);
-
-            foreach (LavaBombEntity lavaBomb in LavaBombs)
-            {
-                GL.LoadIdentity();
-                GL.Translate(lavaBomb.Position.X + XPosition, lavaBomb.Position.Y, 0);
-                GL.Rotate(Util.RadiansToDegrees(Angle), 0, 0, 1);
-                lavaBombTexObj.GlRender(LAVA_BOMB_SIZE * lavaBomb.Level);
-            }
+            GlContext.RenderFrame();
 
             SwapBuffers();
         }

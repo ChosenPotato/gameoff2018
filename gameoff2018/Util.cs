@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,15 @@ namespace gameoff2018
         public static double RadiansToDegrees(double rads)
         {
             return rads * (180 / Math.PI);
+        }
+
+        public static Vector2d VectorFromAngle(double radians)
+        {
+            return new Vector2d
+            (
+                Math.Sin(radians),
+                Math.Cos(radians)
+            );
         }
     }
 }

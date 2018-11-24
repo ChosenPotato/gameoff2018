@@ -36,7 +36,31 @@ namespace gameoff2018
             Bitmap.UnlockBits(data);
         }
 
-        public void GlRender(double scale)
+        public void GlRenderFromCorner(double scale)
+        {
+            GL.Scale(scale, scale, 1.0);
+            GL.BindTexture(TextureTarget.Texture2D, Id);
+
+            GL.Begin(PrimitiveType.Quads);
+            {
+                GL.TexCoord2(0.0f, 1.0f);
+                GL.Vertex2(0.0, 0.0);
+
+                GL.TexCoord2(1.0f, 1.0f);
+                GL.Vertex2(1.0, 0.0);
+
+                GL.TexCoord2(1.0f, 0.0f);
+                GL.Vertex2(1.0, 1.0);
+
+                GL.TexCoord2(0.0f, 0.0f);
+                GL.Vertex2(0.0, 1.0);
+            }
+            GL.End();
+
+            GL.BindTexture(TextureTarget.Texture2D, -1);
+        }
+
+        public void GlRenderFromMiddle(double scale)
         {
             GL.Scale(scale, scale, 1.0);
             GL.BindTexture(TextureTarget.Texture2D, Id);
