@@ -19,8 +19,14 @@ namespace gameoff2018
         public const int TEX_ID_TILE = 1;
         public const int TEX_ID_BG = 2;
         public const int TEX_ID_SPRITE_SUIT = 3;
+        public const int TEX_ID_SPRITE_FONT = 4;
+
+        public const double TEXT_KERNING = 14;
+        public const double TEXT_DEFAULT_HEIGHT = 32;
 
         public const double SPRITE_SIZE = 96;
+        public const double SPRITE_SUIT_FRAMES = 8;
+        public const double SPRITE_FONT_FRAMES = 95;
         public const double SPRITE_FPS = 12;
 
         public const double LAVA_BOMB_SIZE = 20;

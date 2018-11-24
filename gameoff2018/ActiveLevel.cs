@@ -41,7 +41,7 @@ namespace gameoff2018
         {
             Angle += elapsedTime * Math.PI;
 
-            SpriteAnimationPosition += elapsedTime * Constants.SPRITE_FPS / 8;
+            SpriteAnimationPosition += elapsedTime * Constants.SPRITE_FPS / Constants.SPRITE_SUIT_FRAMES;
             if (SpriteAnimationPosition > 1.0)
                 SpriteAnimationPosition -= 1.0;
 

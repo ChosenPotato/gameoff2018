@@ -15,9 +15,9 @@ namespace gameoff2018
             {Constants.TEX_ID_LAVA_BOMB, new TexObject(@"assets\lava-bomb.png")},
             {Constants.TEX_ID_TILE, new TexObject(@"assets\tile.png")},
             {Constants.TEX_ID_BG, new TexObject(@"assets\bg1.png")},
-            {Constants.TEX_ID_SPRITE_SUIT, new TexObject(@"assets\sprite-suit.png")}
         };
-        SpriteTexObject spriteTexObject = new SpriteTexObject(@"assets\sprite-suit.png", 256, 8);
+        SpriteTexObject spriteSuitTexObject = new SpriteTexObject(@"assets\sprite-suit.png", 256, 8);
+        SpriteTexObject spriteFontTexObject = new SpriteTexObject(@"assets\sprite-font.png", 32, 95);
         ActiveLevel Level = null;
 
         public OpenGlContext(ActiveLevel level)
@@ -42,7 +42,8 @@ namespace gameoff2018
 
             foreach (var texObject in texObjects.Values)
                 texObject.GlInit();
-            spriteTexObject.GlInit();
+            spriteSuitTexObject.GlInit();
+            spriteFontTexObject.GlInit();
         }
 
         public void RenderFrame()
@@ -78,12 +79,12 @@ namespace gameoff2018
 
             GL.LoadIdentity();
             GL.Translate(256 + Level.XPosition, 256, 0);
-            int frameToRender = (int)(Level.SpriteAnimationPosition * spriteTexObject.TexCount);
+            int frameToRender = (int)(Level.SpriteAnimationPosition * spriteSuitTexObject.TexCount);
             if (frameToRender < 0)
                 frameToRender = 0;
-            if (frameToRender >= spriteTexObject.TexCount)
-                frameToRender = spriteTexObject.TexCount - 1;
-            spriteTexObject.GlRenderFromCorner(Constants.SPRITE_SIZE, frameToRender, Level.facing == CharacterFacing.Right);
+            if (frameToRender >= spriteSuitTexObject.TexCount)
+                frameToRender = spriteSuitTexObject.TexCount - 1;
+            spriteSuitTexObject.GlRenderFromCorner(Constants.SPRITE_SIZE, frameToRender, Level.facing == CharacterFacing.Right);
 
             foreach (LavaBombEntity lavaBomb in Level.LavaBombs)
             {
@@ -93,12 +94,26 @@ namespace gameoff2018
                 if (texObjects.TryGetValue(Constants.TEX_ID_LAVA_BOMB, out TexObject texObject))
                     texObject.GlRenderFromMiddle(Constants.LAVA_BOMB_SIZE * lavaBomb.Level);
             }
+
+            RenderString(300, 300, "The quick brown fox?");
+        }
+
+        public void RenderString(double x, double y, string text, double size = Constants.TEXT_DEFAULT_HEIGHT)
+        {
+            for (int i = 0; i < text.Length; ++i)
+            {
+                GL.LoadIdentity();
+                GL.Translate(x + i * (size - Constants.TEXT_KERNING), y, 0);
+                spriteFontTexObject.GlRenderFromCorner(size, text[i] - 32, Level.facing == CharacterFacing.Right);
+            }
         }
 
         public void Dispose()
         {
             foreach (var texObject in texObjects.Values)
                 texObject.Dispose();
+            spriteSuitTexObject.Dispose();
+            spriteFontTexObject.Dispose();
         }
     }
 }

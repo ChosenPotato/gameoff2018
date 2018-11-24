@@ -107,7 +107,7 @@ namespace gameoff2018
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            Title = $"(Vsync: {VSync}) FPS: {1f / e.Time:0}";
+            Title = "Gameoff 2018";
 
             GlContext.RenderFrame();
 
