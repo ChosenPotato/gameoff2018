@@ -32,9 +32,9 @@ namespace gameoff2018
         public static readonly double GRAVITY = 360.0;
 
         public List<LavaBombEntity> LavaBombs = new List<LavaBombEntity>();
-
-        Bitmap TexBmp = new Bitmap(@"assets\lava-bomb.png");
-        int Texture = -1;
+        
+        TexObject lavaBombTexObj = new TexObject(@"assets\lava-bomb.png");
+        TexObject tileTexObj = new TexObject(@"assets\tile.png");
         double Angle = 0.0;
         double XPosition = 0.0;
         KeyboardState LatestKeyState;
@@ -85,18 +85,8 @@ namespace gameoff2018
 
             GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
 
-            GL.GenTextures(1, out Texture);
-            GL.BindTexture(TextureTarget.Texture2D, Texture);
-
-            BitmapData data = TexBmp.LockBits(new System.Drawing.Rectangle(0, 0, TexBmp.Width, TexBmp.Height),
-                ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, data.Width, data.Height, 0,
-                OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
-
-            TexBmp.UnlockBits(data);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+            lavaBombTexObj.GlInit();
+            tileTexObj.GlInit();
 
             LavaBombs.Add(new LavaBombEntity(new Vector2d(300, 300), new Vector2d(0, 360), 4));
             Debug.WriteLine("Added from OnLoad");
@@ -104,7 +94,8 @@ namespace gameoff2018
 
         protected override void OnUnload(EventArgs e)
         {
-            GL.DeleteTextures(1, ref Texture);
+            lavaBombTexObj.Dispose();
+            tileTexObj.Dispose();
 
             base.OnUnload(e);
         }
@@ -174,11 +165,6 @@ namespace gameoff2018
             }
         }
 
-        public double RadiansToDegrees(double rads)
-        {
-            return rads * (180 / Math.PI);
-        }
-
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             Title = $"(Vsync: {VSync}) FPS: {1f / e.Time:0}";
@@ -187,21 +173,16 @@ namespace gameoff2018
 
             GL.MatrixMode(MatrixMode.Modelview);
 
+            GL.LoadIdentity();
+            GL.Translate(200, 200, 0);
+            tileTexObj.GlRender(64);
+
             foreach (LavaBombEntity lavaBomb in LavaBombs)
             {
                 GL.LoadIdentity();
                 GL.Translate(lavaBomb.Position.X + XPosition, lavaBomb.Position.Y, 0);
-                GL.Rotate(RadiansToDegrees(Angle), 0, 0, 1);
-                GL.BindTexture(TextureTarget.Texture2D, Texture);
-
-                GL.Begin(PrimitiveType.Quads);
-
-                GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(-LAVA_BOMB_SIZE * lavaBomb.Level, -LAVA_BOMB_SIZE * lavaBomb.Level);
-                GL.TexCoord2(1.0f, 1.0f); GL.Vertex2(LAVA_BOMB_SIZE * lavaBomb.Level, -LAVA_BOMB_SIZE * lavaBomb.Level);
-                GL.TexCoord2(1.0f, 0.0f); GL.Vertex2(LAVA_BOMB_SIZE * lavaBomb.Level, LAVA_BOMB_SIZE * lavaBomb.Level);
-                GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(-LAVA_BOMB_SIZE * lavaBomb.Level, LAVA_BOMB_SIZE * lavaBomb.Level);
-
-                GL.End();
+                GL.Rotate(Util.RadiansToDegrees(Angle), 0, 0, 1);
+                lavaBombTexObj.GlRender(LAVA_BOMB_SIZE * lavaBomb.Level);
             }
 
             SwapBuffers();
