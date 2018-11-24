@@ -29,6 +29,14 @@ namespace gameoff2018
         public const double SPRITE_FONT_FRAMES = 95;
         public const double SPRITE_FPS = 12;
 
+        public const double LAVA_LAKE_SPRITE_SIZE = 64;
+        public const double LAVA_LAKE_SPRITE_FPS = 1.66;
+        public const double LAVA_LAKE_SPRITE_FRAMES = 2;
+
+        public const double LAVA_SURFACE_SPRITE_SIZE = 64;
+        public const double LAVA_SURFACE_SPRITE_FPS = 1.66;
+        public const double LAVA_SURFACE_SPRITE_FRAMES = 2;
+
         public const double LAVA_BOMB_SIZE = 20;
         public const double GRAVITY = 360.0;
     }

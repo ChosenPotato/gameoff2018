@@ -18,6 +18,8 @@ namespace gameoff2018
         };
         SpriteTexObject spriteSuitTexObject = new SpriteTexObject(@"assets\sprite-suit.png", 256, 8);
         SpriteTexObject spriteFontTexObject = new SpriteTexObject(@"assets\sprite-font.png", 32, 95);
+        SpriteTexObject spriteLavaLakeTexObject = new SpriteTexObject(@"assets\sprite-lava-lake.png", 128, 2);
+        SpriteTexObject spriteLavaSurfaceTexObject = new SpriteTexObject(@"assets\sprite-lava-surface.png", 128, 2);
         ActiveLevel Level = null;
 
         public OpenGlContext(ActiveLevel level)
@@ -44,6 +46,8 @@ namespace gameoff2018
                 texObject.GlInit();
             spriteSuitTexObject.GlInit();
             spriteFontTexObject.GlInit();
+            spriteLavaLakeTexObject.GlInit();
+            spriteLavaSurfaceTexObject.GlInit();
         }
 
         public void RenderFrame()
@@ -86,6 +90,26 @@ namespace gameoff2018
                 frameToRender = spriteSuitTexObject.TexCount - 1;
             spriteSuitTexObject.GlRenderFromCorner(Constants.SPRITE_SIZE, frameToRender, Level.facing == CharacterFacing.Right);
 
+            int lavaFrameToRender = (int)(Level.LavaAnimationLoopValue * spriteLavaLakeTexObject.TexCount);
+            if (lavaFrameToRender < 0)
+                lavaFrameToRender = 0;
+            if (lavaFrameToRender >= spriteLavaLakeTexObject.TexCount)
+                lavaFrameToRender = spriteLavaLakeTexObject.TexCount - 1;
+
+            for (int i = 0; i < 5; i++)
+            {
+                GL.LoadIdentity();
+                GL.Translate(512 + i * 64, 256 + 64, 0);
+                spriteLavaSurfaceTexObject.GlRenderFromCorner(Constants.LAVA_SURFACE_SPRITE_SIZE, lavaFrameToRender, Level.facing == CharacterFacing.Right);
+            }
+
+            for (int i = 0; i < 5; i++)
+            {
+                GL.LoadIdentity();
+                GL.Translate(512 + i * 64, 256, 0);
+                spriteLavaLakeTexObject.GlRenderFromCorner(Constants.LAVA_LAKE_SPRITE_SIZE, lavaFrameToRender, Level.facing == CharacterFacing.Right);
+            }
+
             foreach (LavaBombEntity lavaBomb in Level.LavaBombs)
             {
                 GL.LoadIdentity();
@@ -104,8 +128,16 @@ namespace gameoff2018
             {
                 GL.LoadIdentity();
                 GL.Translate(x + i * (size - Constants.TEXT_KERNING), y, 0);
-                spriteFontTexObject.GlRenderFromCorner(size, text[i] - 32, Level.facing == CharacterFacing.Right);
+                spriteFontTexObject.GlRenderFromCorner(size, CorrectIndex(text[i]), Level.facing == CharacterFacing.Right);
             }
+        }
+
+        public int CorrectIndex(int i)
+        {
+            char c = '?';
+            if (i >= 32 && i <= 126)
+                c = (char)i;
+            return c - 32;
         }
 
         public void Dispose()
@@ -114,6 +146,8 @@ namespace gameoff2018
                 texObject.Dispose();
             spriteSuitTexObject.Dispose();
             spriteFontTexObject.Dispose();
+            spriteLavaLakeTexObject.Dispose();
+            spriteLavaSurfaceTexObject.Dispose();
         }
     }
 }

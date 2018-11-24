@@ -25,6 +25,11 @@ namespace gameoff2018
         /// </summary>
         public double SpriteAnimationPosition = 0;
 
+        /// <summary>
+        /// Normalised frame to render (rate of increase may not be 1/sec).
+        /// </summary>
+        public double LavaAnimationLoopValue = 0;
+
         public ActiveLevel()
         {
             facing = CharacterFacing.Left;
@@ -44,6 +49,10 @@ namespace gameoff2018
             SpriteAnimationPosition += elapsedTime * Constants.SPRITE_FPS / Constants.SPRITE_SUIT_FRAMES;
             if (SpriteAnimationPosition > 1.0)
                 SpriteAnimationPosition -= 1.0;
+
+            LavaAnimationLoopValue += elapsedTime * Constants.LAVA_LAKE_SPRITE_FPS / Constants.LAVA_LAKE_SPRITE_FRAMES;
+            if (LavaAnimationLoopValue > 1.0)
+                LavaAnimationLoopValue -= 1.0;
 
             if (keyboardState.IsKeyDown(Key.Left))
             {
