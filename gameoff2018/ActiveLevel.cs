@@ -6,11 +6,14 @@ using System.Linq;
 
 namespace gameoff2018
 {
+    public enum CharacterFacing { Left, Right };
+
     public class ActiveLevel
     {
         public List<LavaBombEntity> LavaBombs = new List<LavaBombEntity>();
         public double Angle = 0.0;
         public double XPosition = 0.0;
+        public CharacterFacing facing;
 
         /// <summary>
         /// Tiles for the level, eg. background, wall, hazard.
@@ -24,6 +27,8 @@ namespace gameoff2018
 
         public ActiveLevel()
         {
+            facing = CharacterFacing.Left;
+
             Tiles = new int[Constants.LEVEL_WIDTH, Constants.LEVEL_HEIGHT];
             Tiles[0, 0] = 1;
             Tiles[1, 0] = 1;
@@ -41,14 +46,15 @@ namespace gameoff2018
                 SpriteAnimationPosition -= 1.0;
 
             if (keyboardState.IsKeyDown(Key.Left))
-                XPosition -= elapsedTime * 200;
+            {
+                XPosition = XPosition -= Constants.CHARACTER_MOVE_SPEED * elapsedTime;
+                facing = CharacterFacing.Left;
+            }
             if (keyboardState.IsKeyDown(Key.Right))
-                XPosition += elapsedTime * 200;
-
-            if (XPosition < -100)
-                XPosition = -100;
-            if (XPosition > 100)
-                XPosition = 100;
+            {
+                XPosition = XPosition += Constants.CHARACTER_MOVE_SPEED * elapsedTime;
+                facing = CharacterFacing.Right;
+            }
 
             foreach (LavaBombEntity b in LavaBombs)
             {

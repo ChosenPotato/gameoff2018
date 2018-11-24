@@ -60,7 +60,7 @@ namespace gameoff2018
                 foreach (int y in Enumerable.Range(0, Constants.LEVEL_HEIGHT))
                 {
                     GL.LoadIdentity();
-                    GL.Translate(Constants.TILE_SIZE_BG * x, Constants.TILE_SIZE_BG * y, 0);
+                    GL.Translate(Constants.TILE_SIZE * x, Constants.TILE_SIZE * y, 0);
                     int textureToUse = -1;
                     switch (Level.Tiles[x,y])
                     {
@@ -73,17 +73,17 @@ namespace gameoff2018
                             break;
                     }
                     if (texObjects.TryGetValue(textureToUse, out TexObject texObject))
-                        texObject.GlRenderFromCorner(Constants.TILE_SIZE_BG);
+                        texObject.GlRenderFromCorner(Constants.TILE_SIZE);
                 }
 
             GL.LoadIdentity();
-            GL.Translate(256, 256, 0);
+            GL.Translate(256 + Level.XPosition, 256, 0);
             int frameToRender = (int)(Level.SpriteAnimationPosition * spriteTexObject.TexCount);
             if (frameToRender < 0)
                 frameToRender = 0;
             if (frameToRender >= spriteTexObject.TexCount)
                 frameToRender = spriteTexObject.TexCount - 1;
-            spriteTexObject.GlRenderFromCorner(Constants.SPRITE_SIZE, frameToRender, true);
+            spriteTexObject.GlRenderFromCorner(Constants.SPRITE_SIZE, frameToRender, Level.facing == CharacterFacing.Right);
 
             foreach (LavaBombEntity lavaBomb in Level.LavaBombs)
             {

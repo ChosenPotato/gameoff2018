@@ -85,8 +85,14 @@ namespace gameoff2018
 
             double x = e.X;
             double y = ScreenHeight - e.Y;
-            
-            Level.LavaBombs.Add(new LavaBombEntity(new Vector2d(x, y), new Vector2d(0, 360), 3));
+
+            int tileX = (int)(x / Constants.TILE_SIZE);
+            int tileY = (int)(y / Constants.TILE_SIZE);
+
+            if (tileX >= 0 && tileX < Constants.LEVEL_WIDTH)
+                if (tileY >= 0 && tileY < Constants.LEVEL_HEIGHT)
+                    Level.Tiles[tileX, tileY] = 1;
+            //Level.LavaBombs.Add(new LavaBombEntity(new Vector2d(x, y), new Vector2d(0, 360), 3));
         }
 
         private void HandleKeyboard()

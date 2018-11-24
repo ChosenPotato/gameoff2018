@@ -8,11 +8,12 @@ namespace gameoff2018
 {
     public static class Constants
     {
-        public const int LEVEL_WIDTH = 12;
-        public const int LEVEL_HEIGHT = 12;
+        public const int LEVEL_WIDTH = 40;
+        public const int LEVEL_HEIGHT = 24;
 
-        public const double TILE_SIZE_FG = 32;
-        public const double TILE_SIZE_BG = 32;
+        public const double CHARACTER_MOVE_SPEED = 240;
+
+        public const double TILE_SIZE = 32;
 
         public const int TEX_ID_LAVA_BOMB = 0;
         public const int TEX_ID_TILE = 1;
