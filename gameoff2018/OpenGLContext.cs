@@ -14,8 +14,10 @@ namespace gameoff2018
         {
             {Constants.TEX_ID_LAVA_BOMB, new TexObject(@"assets\lava-bomb.png")},
             {Constants.TEX_ID_TILE, new TexObject(@"assets\tile.png")},
-            {Constants.TEX_ID_BG, new TexObject(@"assets\bg1.png")}
+            {Constants.TEX_ID_BG, new TexObject(@"assets\bg1.png")},
+            {Constants.TEX_ID_SPRITE_SUIT, new TexObject(@"assets\sprite-suit.png")}
         };
+        SpriteTexObject spriteTexObject = new SpriteTexObject(@"assets\sprite-suit.png", 256, 8);
         ActiveLevel Level = null;
 
         public OpenGlContext(ActiveLevel level)
@@ -40,6 +42,7 @@ namespace gameoff2018
 
             foreach (var texObject in texObjects.Values)
                 texObject.GlInit();
+            spriteTexObject.GlInit();
         }
 
         public void RenderFrame()
@@ -53,14 +56,34 @@ namespace gameoff2018
         public void RenderLevel()
         {
 
-            foreach (int x in Enumerable.Range(0, 12))
-                foreach (int y in Enumerable.Range(0, 12))
+            foreach (int x in Enumerable.Range(0, Constants.LEVEL_WIDTH))
+                foreach (int y in Enumerable.Range(0, Constants.LEVEL_HEIGHT))
                 {
                     GL.LoadIdentity();
                     GL.Translate(Constants.TILE_SIZE_BG * x, Constants.TILE_SIZE_BG * y, 0);
-                    if (texObjects.TryGetValue(Constants.TEX_ID_BG, out TexObject texObject))
+                    int textureToUse = -1;
+                    switch (Level.Tiles[x,y])
+                    {
+                        case 1:
+                            textureToUse = Constants.TEX_ID_TILE;
+                            break;
+                        case 0:
+                        default:
+                            textureToUse = Constants.TEX_ID_BG;
+                            break;
+                    }
+                    if (texObjects.TryGetValue(textureToUse, out TexObject texObject))
                         texObject.GlRenderFromCorner(Constants.TILE_SIZE_BG);
                 }
+
+            GL.LoadIdentity();
+            GL.Translate(256, 256, 0);
+            int frameToRender = (int)(Level.SpriteAnimationPosition * spriteTexObject.TexCount);
+            if (frameToRender < 0)
+                frameToRender = 0;
+            if (frameToRender >= spriteTexObject.TexCount)
+                frameToRender = spriteTexObject.TexCount - 1;
+            spriteTexObject.GlRenderFromCorner(Constants.SPRITE_SIZE, frameToRender, true);
 
             foreach (LavaBombEntity lavaBomb in Level.LavaBombs)
             {

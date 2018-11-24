@@ -55,6 +55,7 @@
     <Compile Include="OpenGlContext.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SpriteTexObject.cs" />
     <Compile Include="TexObject.cs" />
     <Compile Include="Util.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -86,6 +87,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\lava-bomb.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\sprite-suit.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\tile.png">
