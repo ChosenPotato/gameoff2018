@@ -11,6 +11,11 @@ namespace gameoff2018
         public const int LEVEL_WIDTH = 40;
         public const int LEVEL_HEIGHT = 24;
 
+        /// <summary>
+        /// Including frame tiles.
+        /// </summary>
+        public const int LEVEL_EXT_WIDTH = LEVEL_WIDTH + 2;
+
         public const double CHARACTER_MOVE_SPEED = 240;
 
         public const double TILE_SIZE = 32;

@@ -89,11 +89,19 @@ namespace gameoff2018
         {
             Debug.WriteLine($"(X: {e.X}) Y: {e.Y}");
 
+            // Screen coordinates (inverted y)
             double x = e.X;
             double y = ScreenHeight - e.Y;
 
-            int tileX = (int)(x / Constants.TILE_SIZE);
-            int tileY = (int)(y / Constants.TILE_SIZE);
+            // Scale from world coords to screen ones (different origin = needs a translation).
+            double worldToScreenScaleFactor = (Constants.TILE_SIZE * Constants.LEVEL_EXT_WIDTH) / CurrentScreenWidth;
+
+            double worldX = x * worldToScreenScaleFactor - Constants.TILE_SIZE;
+            double worldY = y * worldToScreenScaleFactor - Constants.TILE_SIZE;
+
+            // Scale from world coords to tile coords (same origin = no translation).
+            int tileX = (int)(worldX / Constants.TILE_SIZE);
+            int tileY = (int)(worldY / Constants.TILE_SIZE);
 
             if (tileX >= 0 && tileX < Constants.LEVEL_WIDTH)
                 if (tileY >= 0 && tileY < Constants.LEVEL_HEIGHT)

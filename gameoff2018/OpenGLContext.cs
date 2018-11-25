@@ -3,8 +3,6 @@ using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace gameoff2018
 {
@@ -59,37 +57,99 @@ namespace gameoff2018
             RenderLevel(width, height);
         }
 
-        public void RenderLevel(int width, int height)
+        public void RenderLevel(int screenWidth, int screenHeight)
         {
-            double scaleFactor = width / (Constants.TILE_SIZE * Constants.LEVEL_WIDTH);
+            double scaleFactor = screenWidth / (Constants.TILE_SIZE * Constants.LEVEL_EXT_WIDTH);
 
             GL.LoadIdentity();
             GL.Scale(scaleFactor, scaleFactor, 1.0);
+            GL.Translate(Constants.TILE_SIZE, Constants.TILE_SIZE, 0.0);
+
+            // Render background.
+            foreach (int x in Enumerable.Range(-1, Constants.LEVEL_WIDTH + 2))
+                foreach (int y in Enumerable.Range(-1, Constants.LEVEL_HEIGHT + 2))
+                {
+                    GL.PushMatrix();
+                    {
+                        GL.Translate(Constants.TILE_SIZE * x, Constants.TILE_SIZE * y, 0);
+
+                        if (texObjects.TryGetValue(Constants.TEX_ID_BG, out TexObject tileTexObject))
+                            tileTexObject.GlRenderFromCorner(Constants.TILE_SIZE);
+                    }
+                    GL.PopMatrix();
+                }
+
+            int lavaFrameToRender = (int)(Level.LavaAnimationLoopValue * Constants.LAVA_LAKE_SPRITE_FRAMES);
+            if (lavaFrameToRender < 0)
+                lavaFrameToRender = 0;
+            if (lavaFrameToRender >= Constants.LAVA_LAKE_SPRITE_FRAMES)
+                lavaFrameToRender = Constants.LAVA_LAKE_SPRITE_FRAMES - 1;
+
+            // Render lava surface.
+            foreach (int x in Enumerable.Range(-1, Constants.LEVEL_WIDTH + 2))
+            {
+                GL.PushMatrix();
+                {
+                    GL.Translate(x * Constants.LAVA_SURFACE_SPRITE_SIZE, 256 + Constants.LAVA_SURFACE_SPRITE_SIZE, 0);
+                    if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_LAVA_SURFACE, out SpriteTexObject lavaSurfaceTexObject))
+                        lavaSurfaceTexObject.GlRenderFromCorner(Constants.LAVA_SURFACE_SPRITE_SIZE, lavaFrameToRender);
+                }
+                GL.PopMatrix();
+            }
+
+            // Render lava lake.
+            foreach (int x in Enumerable.Range(-1, Constants.LEVEL_WIDTH + 2))
+                for (int y = 0; y < 5; y++)
+                {
+                    GL.PushMatrix();
+                    {
+                        GL.Translate(x * Constants.LAVA_LAKE_SPRITE_SIZE, 256 - y * Constants.LAVA_LAKE_SPRITE_SIZE, 0);
+
+                        if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_LAVA_LAKE, out SpriteTexObject spriteLavaLakeTexObject))
+                            spriteLavaLakeTexObject.GlRenderFromCorner(Constants.LAVA_LAKE_SPRITE_SIZE, lavaFrameToRender);
+                    }
+                    GL.PopMatrix();
+                }
+
             // Render tiles.
-            foreach (int x in Enumerable.Range(0, Constants.LEVEL_WIDTH))
-                foreach (int y in Enumerable.Range(0, Constants.LEVEL_HEIGHT))
+            foreach (int x in Enumerable.Range(-1, Constants.LEVEL_WIDTH + 2))
+                foreach (int y in Enumerable.Range(-1, Constants.LEVEL_HEIGHT + 2))
                 {
                     GL.PushMatrix();
                     {
                         GL.Translate(Constants.TILE_SIZE * x, Constants.TILE_SIZE * y, 0);
                         int textureToUse = -1;
-                        switch (Level.Tiles[x, y])
+
+                        if
+                        (
+                            x < 0
+                            || x >= Constants.LEVEL_WIDTH
+                            || y < 0
+                            || y >= Constants.LEVEL_HEIGHT
+                        )
                         {
-                            case 1:
-                                textureToUse = Constants.TEX_ID_TILE;
-                                break;
-                            case 0:
-                            default:
-                                textureToUse = Constants.TEX_ID_BG;
-                                break;
+                            textureToUse = Constants.TEX_ID_TILE;
                         }
+                        else
+                        {
+                            switch (Level.Tiles[x, y])
+                            {
+                                case 1:
+                                    textureToUse = Constants.TEX_ID_TILE;
+                                    break;
+                                case 0:
+                                default:
+                                    break;
+                            }
+                        }
+
                         if (texObjects.TryGetValue(textureToUse, out TexObject tileTexObject))
                             tileTexObject.GlRenderFromCorner(Constants.TILE_SIZE);
                     }
                     GL.PopMatrix();
                 }
 
-            // Render sprite suit
+            // Render sprite suit.
             if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_SUIT, out SpriteTexObject suitTexObject))
             {
                 GL.PushMatrix();
@@ -105,39 +165,7 @@ namespace gameoff2018
                 GL.PopMatrix();
             }
 
-            int lavaFrameToRender = (int)(Level.LavaAnimationLoopValue * Constants.LAVA_LAKE_SPRITE_FRAMES);
-            if (lavaFrameToRender < 0)
-                lavaFrameToRender = 0;
-            if (lavaFrameToRender >= Constants.LAVA_LAKE_SPRITE_FRAMES)
-                lavaFrameToRender = Constants.LAVA_LAKE_SPRITE_FRAMES - 1;
-
-            // Render lava surface
-            for (int i = 0; i < 15; i++)
-            {
-                GL.PushMatrix();
-                {
-                    GL.Translate(512 + i * Constants.LAVA_SURFACE_SPRITE_SIZE, 256 + Constants.LAVA_SURFACE_SPRITE_SIZE, 0);
-                    if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_LAVA_SURFACE, out SpriteTexObject lavaSurfaceTexObject))
-                        lavaSurfaceTexObject.GlRenderFromCorner(Constants.LAVA_SURFACE_SPRITE_SIZE, lavaFrameToRender);
-                }
-                GL.PopMatrix();
-            }
-
-            // Render lava lake
-            for (int i = 0; i < 15; i++)
-                for (int j = 0; j < 5; j++)
-                {
-                    GL.PushMatrix();
-                    {
-                        GL.Translate(512 + i * Constants.LAVA_LAKE_SPRITE_SIZE, 256 - j * Constants.LAVA_LAKE_SPRITE_SIZE, 0);
-
-                        if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_LAVA_LAKE, out SpriteTexObject spriteLavaLakeTexObject))
-                            spriteLavaLakeTexObject.GlRenderFromCorner(Constants.LAVA_LAKE_SPRITE_SIZE, lavaFrameToRender);
-                    }
-                    GL.PopMatrix();
-                }
-
-            // Render lava bombs
+            // Render lava bombs.
             foreach (LavaBombEntity lavaBomb in Level.LavaBombs)
             {
                 GL.PushMatrix();
