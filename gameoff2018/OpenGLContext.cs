@@ -51,48 +51,58 @@ namespace gameoff2018
                 texObject.GlInit();
         }
 
-        public void RenderFrame()
+        public void RenderFrame(int width, int height)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
             GL.MatrixMode(MatrixMode.Modelview);
 
-            RenderLevel();
+            RenderLevel(width, height);
         }
 
-        public void RenderLevel()
+        public void RenderLevel(int width, int height)
         {
+            double scaleFactor = width / (Constants.TILE_SIZE * Constants.LEVEL_WIDTH);
+
+            GL.LoadIdentity();
+            GL.Scale(scaleFactor, scaleFactor, 1.0);
             // Render tiles.
             foreach (int x in Enumerable.Range(0, Constants.LEVEL_WIDTH))
                 foreach (int y in Enumerable.Range(0, Constants.LEVEL_HEIGHT))
                 {
-                    GL.LoadIdentity();
-                    GL.Translate(Constants.TILE_SIZE * x, Constants.TILE_SIZE * y, 0);
-                    int textureToUse = -1;
-                    switch (Level.Tiles[x,y])
+                    GL.PushMatrix();
                     {
-                        case 1:
-                            textureToUse = Constants.TEX_ID_TILE;
-                            break;
-                        case 0:
-                        default:
-                            textureToUse = Constants.TEX_ID_BG;
-                            break;
+                        GL.Translate(Constants.TILE_SIZE * x, Constants.TILE_SIZE * y, 0);
+                        int textureToUse = -1;
+                        switch (Level.Tiles[x, y])
+                        {
+                            case 1:
+                                textureToUse = Constants.TEX_ID_TILE;
+                                break;
+                            case 0:
+                            default:
+                                textureToUse = Constants.TEX_ID_BG;
+                                break;
+                        }
+                        if (texObjects.TryGetValue(textureToUse, out TexObject tileTexObject))
+                            tileTexObject.GlRenderFromCorner(Constants.TILE_SIZE);
                     }
-                    if (texObjects.TryGetValue(textureToUse, out TexObject tileTexObject))
-                        tileTexObject.GlRenderFromCorner(Constants.TILE_SIZE);
+                    GL.PopMatrix();
                 }
 
             // Render sprite suit
             if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_SUIT, out SpriteTexObject suitTexObject))
             {
-                GL.LoadIdentity();
-                GL.Translate(256 + Level.XPosition, 256, 0);
-                int frameToRender = (int)(Level.SpriteAnimationPosition * suitTexObject.TexCount);
-                if (frameToRender < 0)
-                    frameToRender = 0;
-                if (frameToRender >= suitTexObject.TexCount)
-                    frameToRender = suitTexObject.TexCount - 1;
-                suitTexObject.GlRenderFromCorner(Constants.SPRITE_SUIT_SIZE, frameToRender, Level.facing == CharacterFacing.Right);
+                GL.PushMatrix();
+                {
+                    GL.Translate(256 + Level.XPosition, 256, 0);
+                    int frameToRender = (int)(Level.SpriteAnimationPosition * suitTexObject.TexCount);
+                    if (frameToRender < 0)
+                        frameToRender = 0;
+                    if (frameToRender >= suitTexObject.TexCount)
+                        frameToRender = suitTexObject.TexCount - 1;
+                    suitTexObject.GlRenderFromCorner(Constants.SPRITE_SUIT_SIZE, frameToRender, Level.facing == CharacterFacing.Right);
+                }
+                GL.PopMatrix();
             }
 
             int lavaFrameToRender = (int)(Level.LavaAnimationLoopValue * Constants.LAVA_LAKE_SPRITE_FRAMES);
@@ -104,31 +114,40 @@ namespace gameoff2018
             // Render lava surface
             for (int i = 0; i < 15; i++)
             {
-                GL.LoadIdentity();
-                GL.Translate(512 + i * Constants.LAVA_SURFACE_SPRITE_SIZE, 256 + Constants.LAVA_SURFACE_SPRITE_SIZE, 0);
-                if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_LAVA_SURFACE, out SpriteTexObject lavaSurfaceTexObject))
-                    lavaSurfaceTexObject.GlRenderFromCorner(Constants.LAVA_SURFACE_SPRITE_SIZE, lavaFrameToRender);
+                GL.PushMatrix();
+                {
+                    GL.Translate(512 + i * Constants.LAVA_SURFACE_SPRITE_SIZE, 256 + Constants.LAVA_SURFACE_SPRITE_SIZE, 0);
+                    if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_LAVA_SURFACE, out SpriteTexObject lavaSurfaceTexObject))
+                        lavaSurfaceTexObject.GlRenderFromCorner(Constants.LAVA_SURFACE_SPRITE_SIZE, lavaFrameToRender);
+                }
+                GL.PopMatrix();
             }
 
             // Render lava lake
             for (int i = 0; i < 15; i++)
                 for (int j = 0; j < 5; j++)
                 {
-                    GL.LoadIdentity();
-                    GL.Translate(512 + i * Constants.LAVA_LAKE_SPRITE_SIZE, 256 - j * Constants.LAVA_LAKE_SPRITE_SIZE, 0);
-                    
-                if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_LAVA_LAKE, out SpriteTexObject spriteLavaLakeTexObject))
-                    spriteLavaLakeTexObject.GlRenderFromCorner(Constants.LAVA_LAKE_SPRITE_SIZE, lavaFrameToRender);
+                    GL.PushMatrix();
+                    {
+                        GL.Translate(512 + i * Constants.LAVA_LAKE_SPRITE_SIZE, 256 - j * Constants.LAVA_LAKE_SPRITE_SIZE, 0);
+
+                        if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_LAVA_LAKE, out SpriteTexObject spriteLavaLakeTexObject))
+                            spriteLavaLakeTexObject.GlRenderFromCorner(Constants.LAVA_LAKE_SPRITE_SIZE, lavaFrameToRender);
+                    }
+                    GL.PopMatrix();
                 }
 
             // Render lava bombs
             foreach (LavaBombEntity lavaBomb in Level.LavaBombs)
             {
-                GL.LoadIdentity();
-                GL.Translate(lavaBomb.Position.X + Level.XPosition, lavaBomb.Position.Y, 0);
-                GL.Rotate(Util.RadiansToDegrees(Level.Angle), 0, 0, 1);
-                if (texObjects.TryGetValue(Constants.TEX_ID_LAVA_BOMB, out TexObject texObject))
-                    texObject.GlRenderFromMiddle(Constants.LAVA_BOMB_SIZE * lavaBomb.Level);
+                GL.PushMatrix();
+                {
+                    GL.Translate(lavaBomb.Position.X + Level.XPosition, lavaBomb.Position.Y, 0);
+                    GL.Rotate(Util.RadiansToDegrees(Level.Angle), 0, 0, 1);
+                    if (texObjects.TryGetValue(Constants.TEX_ID_LAVA_BOMB, out TexObject texObject))
+                        texObject.GlRenderFromMiddle(Constants.LAVA_BOMB_SIZE * lavaBomb.Level);
+                }
+                GL.PopMatrix();
             }
 
             RenderString(300, 300, "The quick brown fox?");
@@ -136,13 +155,17 @@ namespace gameoff2018
 
         public void RenderString(double x, double y, string text, double size = Constants.TEXT_DEFAULT_HEIGHT)
         {
-            for (int i = 0; i < text.Length; ++i)
+            GL.PushMatrix();
             {
-                GL.LoadIdentity();
-                GL.Translate(x + i * (size - Constants.TEXT_KERNING), y, 0);
-                if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_FONT, out SpriteTexObject spriteFontTexObject))
-                    spriteFontTexObject.GlRenderFromCorner(size, CorrectIndex(text[i]));
+                GL.Translate(x, y, 0);
+                for (int i = 0; i < text.Length; ++i)
+                {
+                    if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_FONT, out SpriteTexObject spriteFontTexObject))
+                        spriteFontTexObject.GlRenderFromCorner(size, CorrectIndex(text[i]));
+                    GL.Translate(size - Constants.TEXT_KERNING, 0, 0);
+                }
             }
+            GL.PopMatrix();
         }
 
         public int CorrectIndex(int i)

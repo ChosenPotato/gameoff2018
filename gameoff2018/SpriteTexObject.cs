@@ -69,43 +69,47 @@ namespace gameoff2018
         /// <param name="flip">Flips horizontally.</param>
         public void GlRenderFromCorner(double scale, int frame, bool flip = false)
         {
-            GL.Scale(scale, scale, 1.0);
-            GL.BindTexture(TextureTarget.Texture2D, Ids[frame]);
-
-            GL.Begin(PrimitiveType.Quads);
+            GL.PushMatrix();
             {
-                if (flip)
+                GL.Scale(scale, scale, 1.0);
+                GL.BindTexture(TextureTarget.Texture2D, Ids[frame]);
+
+                GL.Begin(PrimitiveType.Quads);
                 {
-                    GL.TexCoord2(1.0f, 1.0f);
-                    GL.Vertex2(0.0, 0.0);
+                    if (flip)
+                    {
+                        GL.TexCoord2(1.0f, 1.0f);
+                        GL.Vertex2(0.0, 0.0);
 
-                    GL.TexCoord2(0.0f, 1.0f);
-                    GL.Vertex2(1.0, 0.0);
+                        GL.TexCoord2(0.0f, 1.0f);
+                        GL.Vertex2(1.0, 0.0);
 
-                    GL.TexCoord2(0.0f, 0.0f);
-                    GL.Vertex2(1.0, 1.0);
+                        GL.TexCoord2(0.0f, 0.0f);
+                        GL.Vertex2(1.0, 1.0);
 
-                    GL.TexCoord2(1.0f, 0.0f);
-                    GL.Vertex2(0.0, 1.0);
+                        GL.TexCoord2(1.0f, 0.0f);
+                        GL.Vertex2(0.0, 1.0);
+                    }
+                    else
+                    {
+                        GL.TexCoord2(0.0f, 1.0f);
+                        GL.Vertex2(0.0, 0.0);
+
+                        GL.TexCoord2(1.0f, 1.0f);
+                        GL.Vertex2(1.0, 0.0);
+
+                        GL.TexCoord2(1.0f, 0.0f);
+                        GL.Vertex2(1.0, 1.0);
+
+                        GL.TexCoord2(0.0f, 0.0f);
+                        GL.Vertex2(0.0, 1.0);
+                    }
                 }
-                else
-                {
-                    GL.TexCoord2(0.0f, 1.0f);
-                    GL.Vertex2(0.0, 0.0);
+                GL.End();
 
-                    GL.TexCoord2(1.0f, 1.0f);
-                    GL.Vertex2(1.0, 0.0);
-
-                    GL.TexCoord2(1.0f, 0.0f);
-                    GL.Vertex2(1.0, 1.0);
-
-                    GL.TexCoord2(0.0f, 0.0f);
-                    GL.Vertex2(0.0, 1.0);
-                }
+                GL.BindTexture(TextureTarget.Texture2D, -1);
             }
-            GL.End();
-
-            GL.BindTexture(TextureTarget.Texture2D, -1);
+            GL.PopMatrix();
         }
 
         public void Dispose()

@@ -34,10 +34,13 @@ namespace gameoff2018
         KeyboardState LatestKeyState;
         double ScreenHeight = 720.0;
 
+        int CurrentScreenWidth = Constants.INITIAL_SCREEN_WIDTH;
+        int CurrentScreenHeight = Constants.INITIAL_SCREEN_WIDTH;
+
         public MainWindow(): base
             (
-                1280, // initial width
-                720, // initial height
+                Constants.INITIAL_SCREEN_WIDTH,
+                Constants.INITIAL_SCREEN_HEIGHT,
                 GraphicsMode.Default,
                 "Game Off 2018",  // initial title
                 GameWindowFlags.Default,
@@ -52,6 +55,9 @@ namespace gameoff2018
 
         protected override void OnResize(EventArgs e)
         {
+            CurrentScreenWidth = Width;
+            CurrentScreenHeight = Height;
+
             GL.Viewport(0, 0, Width, Height);
 
             GL.MatrixMode(MatrixMode.Projection);
@@ -109,7 +115,7 @@ namespace gameoff2018
         {
             Title = "Gameoff 2018";
 
-            GlContext.RenderFrame();
+            GlContext.RenderFrame(CurrentScreenWidth, CurrentScreenHeight);
 
             SwapBuffers();
         }

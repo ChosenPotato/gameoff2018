@@ -42,5 +42,8 @@ namespace gameoff2018
 
         public const double LAVA_BOMB_SIZE = 20;
         public const double GRAVITY = 360.0;
+
+        public const int INITIAL_SCREEN_WIDTH = 1280;
+        public const int INITIAL_SCREEN_HEIGHT = 720;
     }
 }
