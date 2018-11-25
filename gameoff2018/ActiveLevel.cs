@@ -13,6 +13,11 @@ namespace gameoff2018
         public List<LavaBombEntity> LavaBombs = new List<LavaBombEntity>();
         public double Angle = 0.0;
         public double XPosition = 0.0;
+
+        /// <summary>
+        /// Lava reaches this height.
+        /// </summary>
+        public double LavaHeight = 0;
         public CharacterFacing facing;
 
         /// <summary>
@@ -45,6 +50,8 @@ namespace gameoff2018
         public void Update(KeyboardState keyboardState, double elapsedTime)
         {
             Angle += elapsedTime * Math.PI;
+
+            LavaHeight += elapsedTime * Constants.LAVA_RISE_SPEED;
 
             SpriteAnimationPosition += elapsedTime * Constants.SPRITE_SUIT_FPS / Constants.SPRITE_SUIT_FRAMES;
             if (SpriteAnimationPosition > 1.0)

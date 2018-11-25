@@ -85,12 +85,21 @@ namespace gameoff2018
             if (lavaFrameToRender >= Constants.LAVA_LAKE_SPRITE_FRAMES)
                 lavaFrameToRender = Constants.LAVA_LAKE_SPRITE_FRAMES - 1;
 
+            // Determine how many lava lake tiles to render along Y.
+            // Involves lava height from bottom of worldviewport (world coords) and tile width - 1 (the surface).
+            double bottomOfViewInWorldCoords = 0;
+            double lavaHeightInView = Level.LavaHeight - bottomOfViewInWorldCoords;
+            // this value + 1 to round up instead of down, + 1 border tile, and - 1 surface tile
+            int tilesInView = (int)(lavaHeightInView / Constants.TILE_SIZE) + 1;
+            if (tilesInView < 0)
+                tilesInView = 0;
+
             // Render lava surface.
             foreach (int x in Enumerable.Range(-1, Constants.LEVEL_WIDTH + 2))
             {
                 GL.PushMatrix();
                 {
-                    GL.Translate(x * Constants.LAVA_SURFACE_SPRITE_SIZE, 256 + Constants.LAVA_SURFACE_SPRITE_SIZE, 0);
+                    GL.Translate(x * Constants.LAVA_SURFACE_SPRITE_SIZE, Level.LavaHeight, 0);
                     if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_LAVA_SURFACE, out SpriteTexObject lavaSurfaceTexObject))
                         lavaSurfaceTexObject.GlRenderFromCorner(Constants.LAVA_SURFACE_SPRITE_SIZE, lavaFrameToRender);
                 }
@@ -99,11 +108,11 @@ namespace gameoff2018
 
             // Render lava lake.
             foreach (int x in Enumerable.Range(-1, Constants.LEVEL_WIDTH + 2))
-                for (int y = 0; y < 5; y++)
+                for (int y = 0; y < tilesInView; y++)
                 {
                     GL.PushMatrix();
                     {
-                        GL.Translate(x * Constants.LAVA_LAKE_SPRITE_SIZE, 256 - y * Constants.LAVA_LAKE_SPRITE_SIZE, 0);
+                        GL.Translate(x * Constants.LAVA_LAKE_SPRITE_SIZE, Level.LavaHeight - (y + 1) * Constants.LAVA_LAKE_SPRITE_SIZE, 0);
 
                         if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_LAVA_LAKE, out SpriteTexObject spriteLavaLakeTexObject))
                             spriteLavaLakeTexObject.GlRenderFromCorner(Constants.LAVA_LAKE_SPRITE_SIZE, lavaFrameToRender);

@@ -20,6 +20,8 @@ namespace gameoff2018
 
         public const double TILE_SIZE = 32;
 
+        public const double LAVA_RISE_SPEED = 40;
+
         public const int TEX_ID_LAVA_BOMB = 0;
         public const int TEX_ID_TILE = 1;
         public const int TEX_ID_BG = 2;
