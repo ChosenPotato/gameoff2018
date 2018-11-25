@@ -67,7 +67,7 @@ namespace gameoff2018
         /// <param name="scale"></param>
         /// <param name="frame">Must be >= 0 and < TexCount.</param>
         /// <param name="flip">Flips horizontally.</param>
-        public void GlRenderFromCorner(double scale, int frame, bool flip)
+        public void GlRenderFromCorner(double scale, int frame, bool flip = false)
         {
             GL.Scale(scale, scale, 1.0);
             GL.BindTexture(TextureTarget.Texture2D, Ids[frame]);
