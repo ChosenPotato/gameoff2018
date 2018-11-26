@@ -1,7 +1,9 @@
-﻿using OpenTK.Graphics;
+﻿using OpenTK;
+using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 namespace gameoff2018
@@ -56,6 +58,13 @@ namespace gameoff2018
 
             RenderLevel(width, height);
         }
+
+        //public Point WorldToScreenCoords(Vector2d worldV, double screenWidth)
+        //{
+        //    double scaleFactor = screenWidth / (Constants.TILE_SIZE * Constants.LEVEL_EXT_WIDTH);
+        //    Vector2d scaled = worldV * scaleFactor;
+        //    return new Point((int)(scaled.X + Constants.TILE_SIZE), (int)(scaled.Y + Constants.TILE_SIZE));
+        //}
 
         public void RenderLevel(int screenWidth, int screenHeight)
         {
@@ -163,7 +172,7 @@ namespace gameoff2018
             {
                 GL.PushMatrix();
                 {
-                    GL.Translate(256 + Level.XPosition, 256, 0);
+                    GL.Translate(Level.McPosition.X, Level.McPosition.Y, 0);
                     int frameToRender = (int)(Level.SpriteAnimationPosition * suitTexObject.TexCount);
                     if (frameToRender < 0)
                         frameToRender = 0;
@@ -179,7 +188,7 @@ namespace gameoff2018
             {
                 GL.PushMatrix();
                 {
-                    GL.Translate(lavaBomb.Position.X + Level.XPosition, lavaBomb.Position.Y, 0);
+                    GL.Translate(lavaBomb.Position.X + Level.McPosition.X, lavaBomb.Position.Y, 0);
                     GL.Rotate(Util.RadiansToDegrees(Level.Angle), 0, 0, 1);
                     if (texObjects.TryGetValue(Constants.TEX_ID_LAVA_BOMB, out TexObject texObject))
                         texObject.GlRenderFromMiddle(Constants.LAVA_BOMB_SIZE * lavaBomb.Level);

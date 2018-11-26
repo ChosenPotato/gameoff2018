@@ -8,7 +8,7 @@ namespace gameoff2018
 {
     public static class Constants
     {
-        public const int LEVEL_WIDTH = 40;
+        public const int LEVEL_WIDTH = 48;
         public const int LEVEL_HEIGHT = 24;
 
         /// <summary>
@@ -20,7 +20,7 @@ namespace gameoff2018
 
         public const double TILE_SIZE = 32;
 
-        public const double LAVA_RISE_SPEED = 40;
+        public const double LAVA_RISE_SPEED = 10;
 
         public const int TEX_ID_LAVA_BOMB = 0;
         public const int TEX_ID_TILE = 1;
@@ -33,6 +33,7 @@ namespace gameoff2018
         public const double TEXT_KERNING = 14;
         public const double TEXT_DEFAULT_HEIGHT = 32;
 
+        public const double MC_PHYSICS_WIDTH = 32;
         public const double SPRITE_SUIT_SIZE = 96;
         public const double SPRITE_SUIT_FPS = 12;
         public const int SPRITE_SUIT_FRAMES = 8;
@@ -48,7 +49,8 @@ namespace gameoff2018
         public const int LAVA_SURFACE_SPRITE_FRAMES = 2;
 
         public const double LAVA_BOMB_SIZE = 20;
-        public const double GRAVITY = 360.0;
+        public const double GRAVITY = 1200.0;
+        public const double JUMP_SPEED = 700.0;
 
         public const int INITIAL_SCREEN_WIDTH = 1280;
         public const int INITIAL_SCREEN_HEIGHT = 720;

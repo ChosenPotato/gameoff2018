@@ -80,9 +80,9 @@ namespace gameoff2018
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            HandleKeyboard();
+            Level.Update(LatestKeyState, Keyboard.GetState(), e.Time);
 
-            Level.Update(LatestKeyState, e.Time);
+            HandleKeyboard();
         }
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
