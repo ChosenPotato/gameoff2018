@@ -196,7 +196,7 @@ namespace gameoff2018
                 GL.PopMatrix();
             }
 
-            RenderString(300, 300, "The quick brown fox?");
+            RenderString(300, 300, "How not to escape a volcano...");
         }
 
         public void RenderString(double x, double y, string text, double size = Constants.TEXT_DEFAULT_HEIGHT)
