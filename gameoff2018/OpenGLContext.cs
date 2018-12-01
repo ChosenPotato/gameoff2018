@@ -17,6 +17,7 @@ namespace gameoff2018
             {Constants.TEX_ID_BG, new TexObject(@"assets\bg1.png")},
             {Constants.TEX_ID_STANDING, new TexObject(@"assets\sprite-standing.png")},
             {Constants.TEX_ID_SPITTER, new TexObject(@"assets\spitter.png")},
+            {Constants.TEX_ID_BULLET, new TexObject(@"assets\lava-bullet-2.png")},
         };
         Dictionary<int, SpriteTexObject> spriteTexObjects = new Dictionary<int, SpriteTexObject>
         {
@@ -215,13 +216,23 @@ namespace gameoff2018
                 {
                     GL.Translate(lavaBomb.Position.X, lavaBomb.Position.Y, 0);
                     GL.Rotate(Util.RadiansToDegrees(Level.Angle), 0, 0, 1);
-                    if (texObjects.TryGetValue(Constants.TEX_ID_LAVA_BOMB, out TexObject texObject))
-                        texObject.GlRenderFromMiddle(Constants.LAVA_BOMB_SIZE);
+                    switch (lavaBomb.Level)
+                    {
+                        case 1:
+                            if (texObjects.TryGetValue(Constants.TEX_ID_BULLET, out TexObject bulletTexObject))
+                                bulletTexObject.GlRenderFromMiddle(Constants.LAVA_BULLET_SIZE);
+                            break;
+                        case 2:
+                        default:
+                            if (texObjects.TryGetValue(Constants.TEX_ID_LAVA_BOMB, out TexObject bombTexObject))
+                                bombTexObject.GlRenderFromMiddle(Constants.LAVA_BOMB_SIZE);
+                            break;
+                    }
                 }
                 GL.PopMatrix();
             }
 
-            RenderString(300, 300, "How not to escape a volcano...");
+            //RenderString(300, 300, "How not to escape a volcano...");
         }
 
         public void RenderString(double x, double y, string text, double size = Constants.TEXT_DEFAULT_HEIGHT)

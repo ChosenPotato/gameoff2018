@@ -33,10 +33,12 @@ namespace gameoff2018
         public const double CHAR_PHYSICS_WIDTH = 24;
 
         public const double LAVA_BOMB_SIZE = 10;
+        public const double LAVA_BULLET_SIZE = 6;
         public const double GRAVITY = 1200.0;
         public const double JUMP_SPEED = 700.0;
 
         public const double SPITTER_LOOP_SPEED = 0.25;
+        public const double LAVA_BOMB_TIMER_MS = 500;
 
         // Sprite constants.
         public const double SPRITE_SUIT_SIZE = 96;
@@ -67,5 +69,6 @@ namespace gameoff2018
         public const int TEX_ID_SPRITE_LAVA_SURFACE = 6;
         public const int TEX_ID_STANDING = 7;
         public const int TEX_ID_SPITTER = 8;
+        public const int TEX_ID_BULLET = 9;
     }
 }
