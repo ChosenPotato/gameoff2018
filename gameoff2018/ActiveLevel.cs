@@ -287,7 +287,9 @@ namespace gameoff2018
                 .Where(x => x.Level > 1 && x.TimeCreated + Constants.LAVA_BOMB_TIMER_MS <= DateTimeOffset.Now.ToUnixTimeMilliseconds());
             LavaBombs =
                 LavaBombs
-                .Where(x => x.TimeCreated + Constants.LAVA_BOMB_TIMER_MS > DateTimeOffset.Now.ToUnixTimeMilliseconds())
+                .Where(x =>
+                    x.TimeCreated + (x.Level == 2 ? Constants.LAVA_BOMB_TIMER_MS : Constants.LAVA_BULLET_TIMER_MS)
+                    > DateTimeOffset.Now.ToUnixTimeMilliseconds())
                 .ToList();
             IEnumerable<Vector2d> vecs = Enumerable.Range(1, 10).Select(x => Math.PI * 2 / 10 * x).Select(x => Util.VectorFromAngle(x) * 100.0);
             IEnumerable<LavaBombEntity> spawned =

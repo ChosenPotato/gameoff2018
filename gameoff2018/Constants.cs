@@ -39,6 +39,7 @@ namespace gameoff2018
 
         public const double SPITTER_LOOP_SPEED = 0.25;
         public const double LAVA_BOMB_TIMER_MS = 500;
+        public const double LAVA_BULLET_TIMER_MS = 1200;
 
         // Sprite constants.
         public const double SPRITE_SUIT_SIZE = 96;
@@ -58,6 +59,7 @@ namespace gameoff2018
         public const int TILE_ID_EMPTY = 0;
         public const int TILE_ID_ROCK = 1;
         public const int TILE_ID_SPITTER = 2;
+        public const int TILE_ID_FLAG = 3;
 
         // Texture constants.
         public const int TEX_ID_LAVA_BOMB = 0;
@@ -70,5 +72,6 @@ namespace gameoff2018
         public const int TEX_ID_STANDING = 7;
         public const int TEX_ID_SPITTER = 8;
         public const int TEX_ID_BULLET = 9;
+        public const int TEX_ID_FLAG = 10;
     }
 }

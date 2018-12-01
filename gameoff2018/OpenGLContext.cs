@@ -18,6 +18,7 @@ namespace gameoff2018
             {Constants.TEX_ID_STANDING, new TexObject(@"assets\sprite-standing.png")},
             {Constants.TEX_ID_SPITTER, new TexObject(@"assets\spitter.png")},
             {Constants.TEX_ID_BULLET, new TexObject(@"assets\lava-bullet-2.png")},
+            {Constants.TEX_ID_FLAG, new TexObject(@"assets\flag.png")},
         };
         Dictionary<int, SpriteTexObject> spriteTexObjects = new Dictionary<int, SpriteTexObject>
         {
@@ -101,6 +102,29 @@ namespace gameoff2018
             // account for border
             GL.Translate(offset.X, offset.Y, 0.0);
 
+            // Render lava bombs.
+            foreach (LavaBombEntity lavaBomb in Level.LavaBombs)
+            {
+                GL.PushMatrix();
+                {
+                    GL.Translate(lavaBomb.Position.X, lavaBomb.Position.Y, 0);
+                    GL.Rotate(Util.RadiansToDegrees(Level.Angle), 0, 0, 1);
+                    switch (lavaBomb.Level)
+                    {
+                        case 1:
+                            if (texObjects.TryGetValue(Constants.TEX_ID_BULLET, out TexObject bulletTexObject))
+                                bulletTexObject.GlRenderFromMiddle(Constants.LAVA_BULLET_SIZE);
+                            break;
+                        case 2:
+                        default:
+                            if (texObjects.TryGetValue(Constants.TEX_ID_LAVA_BOMB, out TexObject bombTexObject))
+                                bombTexObject.GlRenderFromMiddle(Constants.LAVA_BOMB_SIZE);
+                            break;
+                    }
+                }
+                GL.PopMatrix();
+            }
+
             int lavaFrameToRender = (int)(Level.LavaAnimationLoopValue * Constants.LAVA_LAKE_SPRITE_FRAMES);
             if (lavaFrameToRender < 0)
                 lavaFrameToRender = 0;
@@ -165,13 +189,16 @@ namespace gameoff2018
                         {
                             switch (Level.Tiles[x, y])
                             {
-                                case 1:
+                                case Constants.TILE_ID_ROCK:
                                     textureToUse = Constants.TEX_ID_ROCK;
                                     break;
-                                case 2:
+                                case Constants.TILE_ID_SPITTER:
                                     textureToUse = Constants.TEX_ID_SPITTER;
                                     break;
-                                case 0:
+                                case Constants.TILE_ID_FLAG:
+                                    textureToUse = Constants.TEX_ID_FLAG;
+                                    break;
+                                case Constants.TILE_ID_EMPTY:
                                 default:
                                     break;
                             }
@@ -204,29 +231,6 @@ namespace gameoff2018
                                 frameToRender = suitTexObject.TexCount - 1;
                             suitTexObject.GlRenderFromCorner(Constants.SPRITE_SUIT_SIZE, frameToRender, Level.facing == CharacterFacing.Right);
                         }
-                    }
-                }
-                GL.PopMatrix();
-            }
-
-            // Render lava bombs.
-            foreach (LavaBombEntity lavaBomb in Level.LavaBombs)
-            {
-                GL.PushMatrix();
-                {
-                    GL.Translate(lavaBomb.Position.X, lavaBomb.Position.Y, 0);
-                    GL.Rotate(Util.RadiansToDegrees(Level.Angle), 0, 0, 1);
-                    switch (lavaBomb.Level)
-                    {
-                        case 1:
-                            if (texObjects.TryGetValue(Constants.TEX_ID_BULLET, out TexObject bulletTexObject))
-                                bulletTexObject.GlRenderFromMiddle(Constants.LAVA_BULLET_SIZE);
-                            break;
-                        case 2:
-                        default:
-                            if (texObjects.TryGetValue(Constants.TEX_ID_LAVA_BOMB, out TexObject bombTexObject))
-                                bombTexObject.GlRenderFromMiddle(Constants.LAVA_BOMB_SIZE);
-                            break;
                     }
                 }
                 GL.PopMatrix();
