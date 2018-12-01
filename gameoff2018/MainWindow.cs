@@ -3,29 +3,11 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
 
 namespace gameoff2018
 {
-    public class LavaBombEntity
-    {
-        public Vector2d Position, Velocity;
-        public int Level;
-        public long TimeCreated;
-
-        public LavaBombEntity(Vector2d pos, Vector2d vel, int level)
-        {
-            Position = pos;
-            Velocity = vel;
-            Level = level;
-            TimeCreated = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-        }
-    }
-
     public sealed class MainWindow : GameWindow
     {
         OpenGlContext GlContext = null;
@@ -33,6 +15,8 @@ namespace gameoff2018
 
         KeyboardState LatestKeyState;
         double ScreenHeight = 720.0;
+
+        double FrameTimeCounter = 0.0;
 
         int CurrentScreenWidth = Constants.INITIAL_SCREEN_WIDTH;
         int CurrentScreenHeight = Constants.INITIAL_SCREEN_WIDTH;
@@ -77,36 +61,56 @@ namespace gameoff2018
         {
             base.OnUnload(e);
         }
-
+        
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            Level.Update(LatestKeyState, Keyboard.GetState(), e.Time);
+            double interval = 1.0 / Constants.FPS;
+
+            FrameTimeCounter += e.Time;
+
+            while (FrameTimeCounter > interval)
+            {
+                Level.Update(LatestKeyState, Keyboard.GetState(), e.Time);
+                FrameTimeCounter -= interval;
+            }
 
             HandleKeyboard();
         }
 
+        protected override void OnMouseMove(MouseMoveEventArgs e)
+        {
+            Level.MouseMove(e, (int)ScreenHeight, CurrentScreenWidth);
+        }
+
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
-            Debug.WriteLine($"(X: {e.X}) Y: {e.Y}");
+            if (Level.EditorMode)
+            {
+                Debug.WriteLine($"(X: {e.X}) Y: {e.Y}");
 
-            // Screen coordinates (inverted y)
-            double x = e.X;
-            double y = ScreenHeight - e.Y;
+                Vector2d worldCoords = Level.ConvertScreenToWorldCoords(
+                    new Point(e.X, (int)ScreenHeight - e.Y),
+                    CurrentScreenWidth);
 
-            // Scale from world coords to screen ones (different origin = needs a translation).
-            double worldToScreenScaleFactor = (Constants.TILE_SIZE * Constants.LEVEL_EXT_WIDTH) / CurrentScreenWidth;
+                // Scale from world coords to tile coords (same origin = no translation).
+                int tileX = (int)(worldCoords.X / Constants.TILE_SIZE);
+                int tileY = (int)(worldCoords.Y / Constants.TILE_SIZE);
 
-            double worldX = x * worldToScreenScaleFactor - Constants.TILE_SIZE;
-            double worldY = y * worldToScreenScaleFactor - Constants.TILE_SIZE;
-
-            // Scale from world coords to tile coords (same origin = no translation).
-            int tileX = (int)(worldX / Constants.TILE_SIZE);
-            int tileY = (int)(worldY / Constants.TILE_SIZE);
-
-            if (tileX >= 0 && tileX < Constants.LEVEL_WIDTH)
-                if (tileY >= 0 && tileY < Constants.LEVEL_HEIGHT)
-                    Level.Tiles[tileX, tileY] = 1;
-            //Level.LavaBombs.Add(new LavaBombEntity(new Vector2d(x, y), new Vector2d(0, 360), 3));
+                if (tileX >= 0 && tileX < Constants.LEVEL_WIDTH)
+                    if (tileY >= 0 && tileY < Constants.LEVEL_HEIGHT)
+                    {
+                        if (e.Button == MouseButton.Left)
+                        {
+                            ref int tile = ref Level.Tiles[tileX, tileY];
+                            if (tile < Constants.TILE_ID_FLAME_SPITTER)
+                                ++tile;
+                            else
+                                tile = Constants.TILE_ID_EMPTY;
+                        }
+                        if (e.Button == MouseButton.Right)
+                            Level.Tiles[tileX, tileY] = 0;
+                    }
+            }
         }
 
         private void HandleKeyboard()
@@ -121,7 +125,7 @@ namespace gameoff2018
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            Title = "Gameoff 2018";
+            Title = "Hot Rocks, Cold Feet";
 
             GlContext.RenderFrame(CurrentScreenWidth, CurrentScreenHeight);
 
