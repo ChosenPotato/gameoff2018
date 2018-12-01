@@ -187,6 +187,16 @@ namespace gameoff2018
             return playerY < LavaHeight;
         }
 
+        public BoundingBox GetPlayerBoundingBox(double playerX, double playerY)
+        {
+            double Left = (playerX + (Constants.SPRITE_SUIT_SIZE / 2) - Constants.CHAR_PHYSICS_WIDTH) / Constants.TILE_SIZE;
+            double Right = (playerX + (Constants.SPRITE_SUIT_SIZE / 2) + Constants.CHAR_PHYSICS_WIDTH) / Constants.TILE_SIZE;
+            double Bottom = playerY / Constants.TILE_SIZE;
+            double Top = (playerY + Constants.SPRITE_SUIT_SIZE) / Constants.TILE_SIZE;
+
+            return new BoundingBox(Left, Right, Bottom, Top);
+        }
+
         /// <summary>
         /// Check each tile in the rectangle of tiles the player can intersect with. If any are not empty, returns true.
         /// </summary>
@@ -195,10 +205,12 @@ namespace gameoff2018
         /// <returns></returns>
         public CollisionOutcome IsIntersectionWithLevel(double playerX, double playerY)
         {
-            int McLeftTile = Convert.ToInt32(Math.Floor((playerX + (Constants.SPRITE_SUIT_SIZE / 2) - Constants.CHAR_PHYSICS_WIDTH) / Constants.TILE_SIZE));
-            int McRightTile = Convert.ToInt32(Math.Floor((playerX + (Constants.SPRITE_SUIT_SIZE / 2) + Constants.CHAR_PHYSICS_WIDTH) / Constants.TILE_SIZE));
-            int McBottomTile = Convert.ToInt32(Math.Floor(playerY / Constants.TILE_SIZE));
-            int McTopTile = Convert.ToInt32(Math.Floor((playerY + Constants.SPRITE_SUIT_SIZE) / Constants.TILE_SIZE));
+            BoundingBox boundingBox = GetPlayerBoundingBox(playerX, playerY);
+
+            int McLeftTile = Convert.ToInt32(Math.Floor(boundingBox.Left));
+            int McRightTile = Convert.ToInt32(Math.Floor(boundingBox.Right));
+            int McBottomTile = Convert.ToInt32(Math.Floor(boundingBox.Bottom));
+            int McTopTile = Convert.ToInt32(Math.Floor(boundingBox.Top));
 
             bool collision = false;
 

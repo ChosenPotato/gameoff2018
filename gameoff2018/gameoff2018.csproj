@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActiveLevel.cs" />
+    <Compile Include="BoundingBox.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="OpenGlContext.cs" />
