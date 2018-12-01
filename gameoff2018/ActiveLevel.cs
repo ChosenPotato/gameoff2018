@@ -89,7 +89,13 @@ namespace gameoff2018
             BinaryFormatter binaryFormatter = new BinaryFormatter();
             using (var memoryStream = new MemoryStream(bytesLoaded))
             {
-                Tiles = (int[,])binaryFormatter.Deserialize(memoryStream);
+                int[,] tilesToSet = (int[,])binaryFormatter.Deserialize(memoryStream);
+                Tiles = new int[Constants.LEVEL_WIDTH, Constants.LEVEL_HEIGHT];
+                for (int x = 0; x < tilesToSet.GetLength(0); x++)
+                    for (int y = 0; y < tilesToSet.GetLength(1); y++)
+                    {
+                        Tiles[x, y] = tilesToSet[x, y];
+                    }
             }
         }
 

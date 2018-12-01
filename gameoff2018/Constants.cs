@@ -9,7 +9,7 @@ namespace gameoff2018
     public static class Constants
     {
         public const int LEVEL_WIDTH = 48;
-        public const int LEVEL_HEIGHT = 24;
+        public const int LEVEL_HEIGHT = 96;
 
         /// <summary>
         /// Including frame tiles.
@@ -18,6 +18,7 @@ namespace gameoff2018
 
         public const double CHARACTER_MOVE_SPEED = 240;
 
+        public const double BG_TILE_SIZE = 64;
         public const double TILE_SIZE = 32;
 
         public const double LAVA_RISE_SPEED = 10;

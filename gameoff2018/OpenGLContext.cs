@@ -72,8 +72,17 @@ namespace gameoff2018
             double scaleFactor = screenWidth / (Constants.TILE_SIZE * Constants.LEVEL_EXT_WIDTH);
 
             GL.LoadIdentity();
-            GL.Scale(scaleFactor, scaleFactor, 1.0);
-            GL.Translate(Constants.TILE_SIZE, Constants.TILE_SIZE, 0.0);
+            GL.Scale(scaleFactor * 0.5, scaleFactor * 0.5, 1.0);
+            // account for border
+            GL.Translate(Constants.BG_TILE_SIZE, Constants.BG_TILE_SIZE, 0.0);
+            // if they are more than x tiles up
+            if (Level.McPosition.Y > Constants.TILE_SIZE * 12)
+            {
+                // character appears some distance from the bottom of the screen
+                GL.Translate(0.0, Constants.TILE_SIZE * 12, 0.0);
+                // account for character position in level
+                GL.Translate(0.0, -Level.McPosition.Y, 0.0);
+            }
 
             // Render background.
             foreach (int x in Enumerable.Range(-1, Constants.LEVEL_WIDTH + 2))
@@ -81,13 +90,26 @@ namespace gameoff2018
                 {
                     GL.PushMatrix();
                     {
-                        GL.Translate(Constants.TILE_SIZE * x, Constants.TILE_SIZE * y, 0);
+                        GL.Translate(Constants.BG_TILE_SIZE * x, Constants.BG_TILE_SIZE * y, 0);
 
                         if (texObjects.TryGetValue(Constants.TEX_ID_BG, out TexObject tileTexObject))
-                            tileTexObject.GlRenderFromCorner(Constants.TILE_SIZE);
+                            tileTexObject.GlRenderFromCorner(Constants.BG_TILE_SIZE);
                     }
                     GL.PopMatrix();
                 }
+
+            GL.LoadIdentity();
+            GL.Scale(scaleFactor, scaleFactor, 1.0);
+            // account for border
+            GL.Translate(Constants.TILE_SIZE, Constants.TILE_SIZE, 0.0);
+            // if they are more than x tiles up
+            if (Level.McPosition.Y > Constants.TILE_SIZE * 12)
+            {
+                // character appears some distance from the bottom of the screen
+                GL.Translate(0.0, Constants.TILE_SIZE * 12, 0.0);
+                // account for character position in level
+                GL.Translate(0.0, -Level.McPosition.Y, 0.0);
+            }
 
             int lavaFrameToRender = (int)(Level.LavaAnimationLoopValue * Constants.LAVA_LAKE_SPRITE_FRAMES);
             if (lavaFrameToRender < 0)
