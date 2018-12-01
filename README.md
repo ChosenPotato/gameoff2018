@@ -2,11 +2,9 @@
 Submission for GitHub Game Off 2018
 
 Repository URL: https://github.com/ChosenPotato/gameoff2018
+Twitter: https://twitter.com/ch0senpotato
+Itch.io: To be added
 
-To develop, you will need:
-    - Windows
-    - Visual Studio Community 2017 (with C# features installed)
-    - Some form of Git installed (try https://git-scm.com/downloads - default installation options will do fine)
-    - A Git client of your choice (GitKraken recommended)
-    - A GitHub account
-    - Sign in to itch.io using your GitHub account
+To build this you will need:
+    - Visual Studio 2017 (with C#)
+    - .NET Framework 4.7.1
