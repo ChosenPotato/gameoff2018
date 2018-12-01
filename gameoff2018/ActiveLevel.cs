@@ -1,8 +1,11 @@
 ﻿using OpenTK;
 using OpenTK.Input;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace gameoff2018
 {
@@ -10,45 +13,84 @@ namespace gameoff2018
 
     public class ActiveLevel
     {
-        public List<LavaBombEntity> LavaBombs = new List<LavaBombEntity>();
-        public double Angle = 0.0;
+        public List<LavaBombEntity> LavaBombs;
+        public double Angle;
 
-        public Vector2d McPosition = new Vector2d(256, 256);
-        public Vector2d McVelocity = new Vector2d(0, 0);
+        public Vector2d McPosition;
+        public Vector2d McVelocity;
 
-        public bool McGrounded = false;
+        public bool McGrounded;
+        public bool McRunning;
 
         /// <summary>
         /// Lava reaches this height.
         /// </summary>
-        public double LavaHeight = 0;
+        public double LavaHeight;
         public CharacterFacing facing;
 
         /// <summary>
-        /// Tiles for the level, eg. background, wall, hazard.
+        /// Tiles for the level, such as walls or hazards.
         /// </summary>
-        public int[,] Tiles = null;
+        public int[,] Tiles;
 
         /// <summary>
         /// Normalised frame to render (rate of increase may not be 1/sec).
         /// </summary>
-        public double SpriteAnimationPosition = 0;
+        public double SpriteAnimationPosition;
 
         /// <summary>
         /// Normalised frame to render (rate of increase may not be 1/sec).
         /// </summary>
-        public double LavaAnimationLoopValue = 0;
+        public double LavaAnimationLoopValue;
 
         public ActiveLevel()
         {
-            facing = CharacterFacing.Left;
+            ResetLevel();
+        }
 
+        public void ResetLevel()
+        {
+            LavaBombs = new List<LavaBombEntity>();
+            //LavaBombs.Add(new LavaBombEntity(new Vector2d(300, 300), new Vector2d(0, 360), 4));
+            Angle = 0.0;
+            McPosition = new Vector2d(256, 256);
+            McVelocity = new Vector2d(0, 0);
+            McGrounded = false;
+            McRunning = false;
+            LavaHeight = 0;
+            facing = CharacterFacing.Left;
             Tiles = new int[Constants.LEVEL_WIDTH, Constants.LEVEL_HEIGHT];
             Tiles[0, 0] = 1;
             Tiles[1, 0] = 1;
             Tiles[2, 0] = 1;
+            Tiles[9, 6] = 1;
+            SpriteAnimationPosition = 0;
+            LavaAnimationLoopValue = 0;
+        }
 
-            LavaBombs.Add(new LavaBombEntity(new Vector2d(300, 300), new Vector2d(0, 360), 4));
+        public void SaveTilesToFile()
+        {
+            byte[] bytesToSave;
+
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            using (var memoryStream = new MemoryStream())
+            {
+                binaryFormatter.Serialize(memoryStream, Tiles);
+                bytesToSave = memoryStream.ToArray();
+            }
+
+            File.WriteAllBytes("level_1", bytesToSave);
+        }
+
+        public void LoadTilesFromFile()
+        {
+            byte[] bytesLoaded = File.ReadAllBytes("level_1");
+
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            using (var memoryStream = new MemoryStream(bytesLoaded))
+            {
+                Tiles = (int[,])binaryFormatter.Deserialize(memoryStream);
+            }
         }
 
         /// <summary>
@@ -64,6 +106,11 @@ namespace gameoff2018
                 return false;
             else
                 return Tiles[tileX, tileY] != 0;
+        }
+
+        public bool IsLavaCollision(double playerY)
+        {
+            return playerY < LavaHeight;
         }
 
         /// <summary>
@@ -98,17 +145,28 @@ namespace gameoff2018
         /// <param name="elapsedTime"></param>
         public void ProcessPlayerMovement(KeyboardState prevKeyState, KeyboardState keyState, double elapsedTime)
         {
+            if (keyState.IsKeyDown(Key.F1) && !prevKeyState.IsKeyDown(Key.F1))
+                SaveTilesToFile();
+            if (keyState.IsKeyDown(Key.F2) && !prevKeyState.IsKeyDown(Key.F2))
+                LoadTilesFromFile();
+
             Vector2d newPosition = McPosition;
 
-            if (keyState.IsKeyDown(Key.Left))
+            if (keyState.IsKeyDown(Key.Left) && !keyState.IsKeyDown(Key.Right))
             {
+                McRunning = true;
                 newPosition.X -= Constants.CHARACTER_MOVE_SPEED * elapsedTime;
                 facing = CharacterFacing.Left;
             }
-            if (keyState.IsKeyDown(Key.Right))
+            else if (keyState.IsKeyDown(Key.Right) && !keyState.IsKeyDown(Key.Left))
             {
+                McRunning = true;
                 newPosition.X += Constants.CHARACTER_MOVE_SPEED * elapsedTime;
                 facing = CharacterFacing.Right;
+            }
+            else
+            {
+                McRunning = false;
             }
             if (keyState.IsKeyDown(Key.Space) && !prevKeyState.IsKeyDown(Key.Space))
             {
@@ -137,6 +195,9 @@ namespace gameoff2018
                 McVelocity = Vector2d.Zero;
                 McGrounded = true;
             }
+
+            if (IsLavaCollision(McPosition.Y))
+                ResetLevel();
         }
 
         public void Update(KeyboardState prevKeyState, KeyboardState keyState, double elapsedTime)

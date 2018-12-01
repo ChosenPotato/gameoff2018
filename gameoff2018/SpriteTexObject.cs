@@ -72,38 +72,26 @@ namespace gameoff2018
             GL.PushMatrix();
             {
                 GL.Scale(scale, scale, 1.0);
+                if (flip)
+                {
+                    GL.Translate(1.0, 0.0, 0.0);
+                    GL.Scale(-1.0, 1.0, 1.0);
+                }
                 GL.BindTexture(TextureTarget.Texture2D, Ids[frame]);
 
                 GL.Begin(PrimitiveType.Quads);
                 {
-                    if (flip)
-                    {
-                        GL.TexCoord2(1.0f, 1.0f);
-                        GL.Vertex2(0.0, 0.0);
+                    GL.TexCoord2(0.0f, 1.0f);
+                    GL.Vertex2(0.0, 0.0);
 
-                        GL.TexCoord2(0.0f, 1.0f);
-                        GL.Vertex2(1.0, 0.0);
+                    GL.TexCoord2(1.0f, 1.0f);
+                    GL.Vertex2(1.0, 0.0);
 
-                        GL.TexCoord2(0.0f, 0.0f);
-                        GL.Vertex2(1.0, 1.0);
+                    GL.TexCoord2(1.0f, 0.0f);
+                    GL.Vertex2(1.0, 1.0);
 
-                        GL.TexCoord2(1.0f, 0.0f);
-                        GL.Vertex2(0.0, 1.0);
-                    }
-                    else
-                    {
-                        GL.TexCoord2(0.0f, 1.0f);
-                        GL.Vertex2(0.0, 0.0);
-
-                        GL.TexCoord2(1.0f, 1.0f);
-                        GL.Vertex2(1.0, 0.0);
-
-                        GL.TexCoord2(1.0f, 0.0f);
-                        GL.Vertex2(1.0, 1.0);
-
-                        GL.TexCoord2(0.0f, 0.0f);
-                        GL.Vertex2(0.0, 1.0);
-                    }
+                    GL.TexCoord2(0.0f, 0.0f);
+                    GL.Vertex2(0.0, 1.0);
                 }
                 GL.End();
 

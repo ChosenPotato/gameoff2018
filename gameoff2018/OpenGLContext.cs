@@ -15,6 +15,7 @@ namespace gameoff2018
             {Constants.TEX_ID_LAVA_BOMB, new TexObject(@"assets\lava-bomb.png")},
             {Constants.TEX_ID_TILE, new TexObject(@"assets\tile.png")},
             {Constants.TEX_ID_BG, new TexObject(@"assets\bg1.png")},
+            {Constants.TEX_ID_STANDING, new TexObject(@"assets\sprite-standing.png")},
         };
         Dictionary<int, SpriteTexObject> spriteTexObjects = new Dictionary<int, SpriteTexObject>
         {
@@ -99,7 +100,7 @@ namespace gameoff2018
             double bottomOfViewInWorldCoords = 0;
             double lavaHeightInView = Level.LavaHeight - bottomOfViewInWorldCoords;
             // this value + 1 to round up instead of down, + 1 border tile, and - 1 surface tile
-            int tilesInView = (int)(lavaHeightInView / Constants.TILE_SIZE) + 1;
+            int tilesInView = (int)(lavaHeightInView / Constants.TILE_SIZE);
             if (tilesInView < 0)
                 tilesInView = 0;
 
@@ -108,7 +109,7 @@ namespace gameoff2018
             {
                 GL.PushMatrix();
                 {
-                    GL.Translate(x * Constants.LAVA_SURFACE_SPRITE_SIZE, Level.LavaHeight, 0);
+                    GL.Translate(x * Constants.LAVA_SURFACE_SPRITE_SIZE, Level.LavaHeight - Constants.LAVA_SURFACE_SPRITE_SIZE, 0);
                     if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_LAVA_SURFACE, out SpriteTexObject lavaSurfaceTexObject))
                         lavaSurfaceTexObject.GlRenderFromCorner(Constants.LAVA_SURFACE_SPRITE_SIZE, lavaFrameToRender);
                 }
@@ -121,7 +122,7 @@ namespace gameoff2018
                 {
                     GL.PushMatrix();
                     {
-                        GL.Translate(x * Constants.LAVA_LAKE_SPRITE_SIZE, Level.LavaHeight - (y + 1) * Constants.LAVA_LAKE_SPRITE_SIZE, 0);
+                        GL.Translate(x * Constants.LAVA_LAKE_SPRITE_SIZE, Level.LavaHeight - (y + 2) * Constants.LAVA_LAKE_SPRITE_SIZE, 0);
 
                         if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_LAVA_LAKE, out SpriteTexObject spriteLavaLakeTexObject))
                             spriteLavaLakeTexObject.GlRenderFromCorner(Constants.LAVA_LAKE_SPRITE_SIZE, lavaFrameToRender);
@@ -168,17 +169,27 @@ namespace gameoff2018
                 }
 
             // Render sprite suit.
-            if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_SUIT, out SpriteTexObject suitTexObject))
             {
                 GL.PushMatrix();
+                GL.Translate(Level.McPosition.X, Level.McPosition.Y, 0);
                 {
-                    GL.Translate(Level.McPosition.X, Level.McPosition.Y, 0);
-                    int frameToRender = (int)(Level.SpriteAnimationPosition * suitTexObject.TexCount);
-                    if (frameToRender < 0)
-                        frameToRender = 0;
-                    if (frameToRender >= suitTexObject.TexCount)
-                        frameToRender = suitTexObject.TexCount - 1;
-                    suitTexObject.GlRenderFromCorner(Constants.SPRITE_SUIT_SIZE, frameToRender, Level.facing == CharacterFacing.Right);
+                    if (!Level.McRunning)
+                    {
+                        if (texObjects.TryGetValue(Constants.TEX_ID_STANDING, out TexObject standTexObject))
+                            standTexObject.GlRenderFromCorner(Constants.SPRITE_SUIT_SIZE, Level.facing == CharacterFacing.Right);
+                    }
+                    else
+                    {
+                        if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_SUIT, out SpriteTexObject suitTexObject))
+                        {
+                            int frameToRender = (int)(Level.SpriteAnimationPosition * suitTexObject.TexCount);
+                            if (frameToRender < 0)
+                                frameToRender = 0;
+                            if (frameToRender >= suitTexObject.TexCount)
+                                frameToRender = suitTexObject.TexCount - 1;
+                            suitTexObject.GlRenderFromCorner(Constants.SPRITE_SUIT_SIZE, frameToRender, Level.facing == CharacterFacing.Right);
+                        }
+                    }
                 }
                 GL.PopMatrix();
             }
