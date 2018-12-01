@@ -14,6 +14,11 @@ namespace gameoff2018
 
     public class ActiveLevel
     {
+        /// <summary>
+        /// Tiles for the level, such as walls or hazards.
+        /// </summary>
+        public int[,] Tiles;
+
         public List<LavaBombEntity> LavaBombs;
         public double Angle;
 
@@ -28,11 +33,6 @@ namespace gameoff2018
         /// </summary>
         public double LavaHeight;
         public CharacterFacing facing;
-
-        /// <summary>
-        /// Tiles for the level, such as walls or hazards.
-        /// </summary>
-        public int[,] Tiles;
 
         /// <summary>
         /// Normalised frame to render (rate of increase may not be 1/sec).
@@ -56,23 +56,36 @@ namespace gameoff2018
 
         public void ResetLevel()
         {
+            LoadTilesFromFile();
+
             LavaBombs = new List<LavaBombEntity>();
             //LavaBombs.Add(new LavaBombEntity(new Vector2d(300, 300), new Vector2d(0, 360), 4));
             Angle = 0.0;
-            McPosition = new Vector2d(256, 256);
-            McVelocity = new Vector2d(0, 0);
-            McGrounded = false;
-            McRunning = false;
-            LavaHeight = 0;
-            facing = CharacterFacing.Left;
-            //Tiles = new int[Constants.LEVEL_WIDTH, Constants.LEVEL_HEIGHT];
-            //Tiles[0, 0] = 1;
-            //Tiles[1, 0] = 1;
-            //Tiles[2, 0] = 1;
-            //Tiles[9, 6] = 1;
-            LoadTilesFromFile();
-            SpriteAnimationPosition = 0;
-            LavaAnimationLoopValue = 0;
+            Vector2d startPositionToSet = new Vector2d(256, 256);
+            for (int tileX = 0; tileX < Constants.LEVEL_WIDTH; ++tileX)
+                for (int tileY = 0; tileY < Constants.LEVEL_HEIGHT; ++tileY)
+                    if (Tiles[tileX, tileY] == Constants.TILE_ID_FLAG_WHITE)
+                    {
+                        startPositionToSet = new Vector2d(tileX * Constants.TILE_SIZE + Constants.TILE_SIZE * 0.5 - Constants.SPRITE_SUIT_SIZE / 2, (tileY + 1) * Constants.TILE_SIZE);
+                        goto Found;
+                    }
+            
+            Found:
+            {
+                McPosition = startPositionToSet;
+                McVelocity = new Vector2d(0, 0);
+                McGrounded = false;
+                McRunning = false;
+                LavaHeight = 0;
+                facing = CharacterFacing.Left;
+                //Tiles = new int[Constants.LEVEL_WIDTH, Constants.LEVEL_HEIGHT];
+                //Tiles[0, 0] = 1;
+                //Tiles[1, 0] = 1;
+                //Tiles[2, 0] = 1;
+                //Tiles[9, 6] = 1;
+                SpriteAnimationPosition = 0;
+                LavaAnimationLoopValue = 0;
+            }
         }
 
         // provided in world coords
@@ -176,7 +189,7 @@ namespace gameoff2018
                     if (tileX < 0 || tileX >= Constants.LEVEL_WIDTH
                         || tileY < 0 || tileY >= Constants.LEVEL_HEIGHT)
                         return true;
-                    if (Tiles[tileX, tileY] != Constants.TILE_ID_EMPTY)
+                    if (Tiles[tileX, tileY] == Constants.TILE_ID_ROCK)
                         return true;
                 }
 

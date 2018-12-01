@@ -18,7 +18,8 @@ namespace gameoff2018
             {Constants.TEX_ID_STANDING, new TexObject(@"assets\sprite-standing.png")},
             {Constants.TEX_ID_SPITTER, new TexObject(@"assets\spitter.png")},
             {Constants.TEX_ID_BULLET, new TexObject(@"assets\lava-bullet-2.png")},
-            {Constants.TEX_ID_FLAG, new TexObject(@"assets\flag.png")},
+            {Constants.TEX_ID_FLAG_RED, new TexObject(@"assets\flag-red.png")},
+            {Constants.TEX_ID_FLAG_WHITE, new TexObject(@"assets\flag-white.png")}
         };
         Dictionary<int, SpriteTexObject> spriteTexObjects = new Dictionary<int, SpriteTexObject>
         {
@@ -195,8 +196,11 @@ namespace gameoff2018
                                 case Constants.TILE_ID_SPITTER:
                                     textureToUse = Constants.TEX_ID_SPITTER;
                                     break;
-                                case Constants.TILE_ID_FLAG:
-                                    textureToUse = Constants.TEX_ID_FLAG;
+                                case Constants.TILE_ID_FLAG_RED:
+                                    textureToUse = Constants.TEX_ID_FLAG_RED;
+                                    break;
+                                case Constants.TILE_ID_FLAG_WHITE:
+                                    textureToUse = Constants.TEX_ID_FLAG_WHITE;
                                     break;
                                 case Constants.TILE_ID_EMPTY:
                                 default:
@@ -205,7 +209,7 @@ namespace gameoff2018
                         }
 
                         if (texObjects.TryGetValue(textureToUse, out TexObject tileTexObject))
-                            tileTexObject.GlRenderFromCorner(Constants.TILE_SIZE);
+                            tileTexObject.GlRenderFromCorner(Constants.TILE_SIZE, false);
                     }
                     GL.PopMatrix();
                 }
@@ -214,6 +218,7 @@ namespace gameoff2018
             {
                 GL.PushMatrix();
                 GL.Translate(Level.McPosition.X, Level.McPosition.Y, 0);
+
                 {
                     if (!Level.McRunning)
                     {

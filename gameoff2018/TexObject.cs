@@ -36,7 +36,7 @@ namespace gameoff2018
             Bitmap.UnlockBits(data);
         }
 
-        public void GlRenderFromCorner(double scale, bool flip = false)
+        public void GlRenderFromCorner(double scale, bool flip = false, bool debug = false)
         {
             GL.Scale(scale, scale, 1.0);
             if (flip)
@@ -44,6 +44,19 @@ namespace gameoff2018
                 GL.Translate(1.0, 0.0, 0.0);
                 GL.Scale(-1.0, 1.0, 1.0);
             }
+
+            if (debug)
+            {
+                GL.Color3(0.0, 1.0, 0.0);
+                GL.Begin(PrimitiveType.Lines);
+                GL.Vertex2(-5, 0);
+                GL.Vertex2(+5, 0);
+                GL.Vertex2(0, -5);
+                GL.Vertex2(0, +5);
+                GL.End();
+                GL.Color3(1.0, 1.0, 1.0);
+            }
+
             GL.BindTexture(TextureTarget.Texture2D, Id);
 
             GL.Begin(PrimitiveType.Quads);

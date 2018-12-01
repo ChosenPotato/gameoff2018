@@ -103,7 +103,7 @@ namespace gameoff2018
                     if (e.Button == MouseButton.Left)
                     {
                         ref int tile = ref Level.Tiles[tileX, tileY];
-                        if (tile < Constants.TILE_ID_FLAG)
+                        if (tile < Constants.TILE_ID_FLAG_WHITE)
                             ++tile;
                         else
                             tile = Constants.TILE_ID_EMPTY;
