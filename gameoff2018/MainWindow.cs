@@ -111,7 +111,6 @@ namespace gameoff2018
                     if (e.Button == MouseButton.Right)
                         Level.Tiles[tileX, tileY] = 0;
                 }
-            //Level.LavaBombs.Add(new LavaBombEntity(new Vector2d(x, y), new Vector2d(0, 360), 3));
         }
 
         private void HandleKeyboard()

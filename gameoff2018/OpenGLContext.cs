@@ -13,7 +13,7 @@ namespace gameoff2018
         Dictionary<int, TexObject> texObjects = new Dictionary<int, TexObject>
         {
             {Constants.TEX_ID_LAVA_BOMB, new TexObject(@"assets\lava-bomb.png")},
-            {Constants.TEX_ID_TILE, new TexObject(@"assets\tile.png")},
+            {Constants.TEX_ID_ROCK, new TexObject(@"assets\tile.png")},
             {Constants.TEX_ID_BG, new TexObject(@"assets\bg1.png")},
             {Constants.TEX_ID_STANDING, new TexObject(@"assets\sprite-standing.png")},
             {Constants.TEX_ID_SPITTER, new TexObject(@"assets\spitter.png")},
@@ -158,14 +158,14 @@ namespace gameoff2018
                             || y >= Constants.LEVEL_HEIGHT
                         )
                         {
-                            textureToUse = Constants.TEX_ID_TILE;
+                            textureToUse = Constants.TEX_ID_ROCK;
                         }
                         else
                         {
                             switch (Level.Tiles[x, y])
                             {
                                 case 1:
-                                    textureToUse = Constants.TEX_ID_TILE;
+                                    textureToUse = Constants.TEX_ID_ROCK;
                                     break;
                                 case 2:
                                     textureToUse = Constants.TEX_ID_SPITTER;
@@ -213,10 +213,10 @@ namespace gameoff2018
             {
                 GL.PushMatrix();
                 {
-                    GL.Translate(lavaBomb.Position.X + Level.McPosition.X, lavaBomb.Position.Y, 0);
+                    GL.Translate(lavaBomb.Position.X, lavaBomb.Position.Y, 0);
                     GL.Rotate(Util.RadiansToDegrees(Level.Angle), 0, 0, 1);
                     if (texObjects.TryGetValue(Constants.TEX_ID_LAVA_BOMB, out TexObject texObject))
-                        texObject.GlRenderFromMiddle(Constants.LAVA_BOMB_SIZE * lavaBomb.Level);
+                        texObject.GlRenderFromMiddle(Constants.LAVA_BOMB_SIZE);
                 }
                 GL.PopMatrix();
             }

@@ -44,6 +44,11 @@ namespace gameoff2018
         /// </summary>
         public double LavaAnimationLoopValue;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public double SpitterLoopValue;
+
         public ActiveLevel()
         {
             ResetLevel();
@@ -144,7 +149,7 @@ namespace gameoff2018
                 || tileY < 0 || tileY >= Constants.LEVEL_HEIGHT)
                 return false;
             else
-                return Tiles[tileX, tileY] != 0;
+                return Tiles[tileX, tileY] != Constants.TILE_ID_EMPTY;
         }
 
         public bool IsLavaCollision(double playerY)
@@ -171,7 +176,7 @@ namespace gameoff2018
                     if (tileX < 0 || tileX >= Constants.LEVEL_WIDTH
                         || tileY < 0 || tileY >= Constants.LEVEL_HEIGHT)
                         return true;
-                    if (Tiles[tileX, tileY] != 0)
+                    if (Tiles[tileX, tileY] != Constants.TILE_ID_EMPTY)
                         return true;
                 }
 
@@ -244,6 +249,22 @@ namespace gameoff2018
             Angle += elapsedTime * Math.PI;
 
             LavaHeight += elapsedTime * Constants.LAVA_RISE_SPEED;
+
+            SpitterLoopValue += elapsedTime * Constants.SPITTER_LOOP_SPEED;
+            if (SpitterLoopValue > 1.0)
+            {
+                SpitterLoopValue -= 1.0;
+
+                for (int tileX = 0; tileX < Constants.LEVEL_WIDTH; ++tileX)
+                    for (int tileY = 0; tileY < Constants.LEVEL_HEIGHT; ++tileY)
+                        if (Tiles[tileX,tileY] == Constants.TILE_ID_SPITTER)
+                        {
+                            LavaBombs.Add(new LavaBombEntity(
+                                new Vector2d(tileX * Constants.TILE_SIZE + Constants.TILE_SIZE * 0.5, (tileY + 1) * Constants.TILE_SIZE),
+                                new Vector2d(0, 750),
+                                2));
+                        }
+            }
 
             SpriteAnimationPosition += elapsedTime * Constants.SPRITE_SUIT_FPS / Constants.SPRITE_SUIT_FRAMES;
             if (SpriteAnimationPosition > 1.0)
