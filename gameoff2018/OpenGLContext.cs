@@ -65,8 +65,42 @@ namespace gameoff2018
             RenderLevel(width, height);
         }
 
+        public void RenderVictoryScreen(int screenWidth, int screenHeight)
+        {
+            GL.LoadIdentity();
+            string victoryText1 = "!!! VICTORY !!!";
+            string victoryText2 = "You escaped from the volcano.";
+            RenderString(screenWidth / 2 - (victoryText1.Length * (32 - 14)) / 2, screenHeight / 2, victoryText1);
+            RenderString(screenWidth / 2 - (victoryText2.Length * (32 - 14)) / 2, screenHeight / 2 - 40, victoryText2);
+
+            // Render sprite suit.
+            {
+                GL.PushMatrix();
+                GL.Translate(200.0, 200.0, 0.0);
+
+                {
+                    if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_SUIT, out SpriteTexObject suitTexObject))
+                    {
+                        int frameToRender = (int)(Level.SpriteAnimationPosition * suitTexObject.TexCount);
+                        if (frameToRender < 0)
+                            frameToRender = 0;
+                        if (frameToRender >= suitTexObject.TexCount)
+                            frameToRender = suitTexObject.TexCount - 1;
+                        suitTexObject.GlRenderFromCorner(Constants.SPRITE_SUIT_SIZE, frameToRender, Level.facing == CharacterFacing.Right);
+                    }
+                }
+                GL.PopMatrix();
+            }
+        }
+
         public void RenderLevel(int screenWidth, int screenHeight)
         {
+            if (Level.GameWon)
+            {
+                RenderVictoryScreen(screenWidth, screenHeight);
+                return;
+            }
+
             double scaleFactor = Level.WorldToScreenScaleFactor(screenWidth);
 
             // Render background.
@@ -275,7 +309,7 @@ namespace gameoff2018
             }
 
             GL.LoadIdentity();
-            RenderString(0, screenHeight - 40, $"Level {Level.LevelNumber}");
+            RenderString(0, screenHeight - 20, $"Level {Level.LevelNumber}" + (Level.EditorMode ? " (editor)" : ""), 16);
         }
 
         public void RenderString(double x, double y, string text, double size = Constants.TEXT_DEFAULT_HEIGHT)
@@ -287,7 +321,7 @@ namespace gameoff2018
                 {
                     if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_FONT, out SpriteTexObject spriteFontTexObject))
                         spriteFontTexObject.GlRenderFromCorner(size, CorrectIndex(text[i]));
-                    GL.Translate(size - Constants.TEXT_KERNING, 0, 0);
+                    GL.Translate(size - (Constants.TEXT_KERNING / Constants.TEXT_DEFAULT_HEIGHT * size), 0, 0);
                 }
             }
             GL.PopMatrix();

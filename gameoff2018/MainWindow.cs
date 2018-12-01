@@ -59,7 +59,7 @@ namespace gameoff2018
         {
             base.OnUnload(e);
         }
-
+        
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             Level.Update(LatestKeyState, Keyboard.GetState(), e.Time);
@@ -67,32 +67,40 @@ namespace gameoff2018
             HandleKeyboard();
         }
 
+        protected override void OnMouseMove(MouseMoveEventArgs e)
+        {
+            Level.MouseMove(e, (int)ScreenHeight, CurrentScreenWidth);
+        }
+
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
-            Debug.WriteLine($"(X: {e.X}) Y: {e.Y}");
+            if (Level.EditorMode)
+            {
+                Debug.WriteLine($"(X: {e.X}) Y: {e.Y}");
 
-            Vector2d worldCoords = Level.ConvertScreenToWorldCoords(
-                new Point(e.X, (int)ScreenHeight - e.Y),
-                CurrentScreenWidth);
+                Vector2d worldCoords = Level.ConvertScreenToWorldCoords(
+                    new Point(e.X, (int)ScreenHeight - e.Y),
+                    CurrentScreenWidth);
 
-            // Scale from world coords to tile coords (same origin = no translation).
-            int tileX = (int)(worldCoords.X / Constants.TILE_SIZE);
-            int tileY = (int)(worldCoords.Y / Constants.TILE_SIZE);
+                // Scale from world coords to tile coords (same origin = no translation).
+                int tileX = (int)(worldCoords.X / Constants.TILE_SIZE);
+                int tileY = (int)(worldCoords.Y / Constants.TILE_SIZE);
 
-            if (tileX >= 0 && tileX < Constants.LEVEL_WIDTH)
-                if (tileY >= 0 && tileY < Constants.LEVEL_HEIGHT)
-                {
-                    if (e.Button == MouseButton.Left)
+                if (tileX >= 0 && tileX < Constants.LEVEL_WIDTH)
+                    if (tileY >= 0 && tileY < Constants.LEVEL_HEIGHT)
                     {
-                        ref int tile = ref Level.Tiles[tileX, tileY];
-                        if (tile < Constants.TILE_ID_FLAME_SPITTER)
-                            ++tile;
-                        else
-                            tile = Constants.TILE_ID_EMPTY;
+                        if (e.Button == MouseButton.Left)
+                        {
+                            ref int tile = ref Level.Tiles[tileX, tileY];
+                            if (tile < Constants.TILE_ID_FLAME_SPITTER)
+                                ++tile;
+                            else
+                                tile = Constants.TILE_ID_EMPTY;
+                        }
+                        if (e.Button == MouseButton.Right)
+                            Level.Tiles[tileX, tileY] = 0;
                     }
-                    if (e.Button == MouseButton.Right)
-                        Level.Tiles[tileX, tileY] = 0;
-                }
+            }
         }
 
         private void HandleKeyboard()

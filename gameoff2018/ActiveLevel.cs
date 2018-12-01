@@ -15,12 +15,15 @@ namespace gameoff2018
 
     public class ActiveLevel
     {
+        public bool GameWon;
         public int LevelNumber;
 
         /// <summary>
         /// Tiles for the level, such as walls or hazards.
         /// </summary>
         public int[,] Tiles;
+
+        public int[] LavaSpeedPerLevel;
 
         public List<LavaBombEntity> LavaBombs;
         public double Angle;
@@ -51,6 +54,8 @@ namespace gameoff2018
         public double FlameSpitterLoopValue;
         public double FlamesLoopValue;
 
+        public bool EditorMode;
+
         public ActiveLevel()
         {
             ResetLevel(LevelResetCause.Start);
@@ -58,10 +63,20 @@ namespace gameoff2018
 
         public void ResetLevel(LevelResetCause resetCause)
         {
+            if (GameWon)
+                return;
+                
             if (resetCause == LevelResetCause.Start)
                 LevelNumber = 1;
             else if (resetCause == LevelResetCause.Victory)
+            {
                 ++LevelNumber;
+                if (LevelNumber == 5)
+                {
+                    GameWon = true;
+                    return;
+                }
+            }
 
             LoadTilesFromFile();
             Vector2d startPositionToSet = new Vector2d(256, 256);
@@ -77,6 +92,7 @@ namespace gameoff2018
             
             Found:
             {
+                LavaSpeedPerLevel = new int[4] { 8, 20, 20, 30 };
                 LavaBombs = new List<LavaBombEntity>();
                 Angle = 0.0;
                 McPosition = startPositionToSet;
@@ -95,6 +111,7 @@ namespace gameoff2018
                 SpitterLoopValue = 0;
                 FlameSpitterLoopValue = 0;
                 FlamesLoopValue = 0;
+                EditorMode = false;
             }
         }
 
@@ -148,7 +165,7 @@ namespace gameoff2018
             byte[] bytesLoaded;
             try
             {
-                bytesLoaded = File.ReadAllBytes($"level_{LevelNumber}");
+                bytesLoaded = File.ReadAllBytes($"levels/level_{LevelNumber}");
 
                 BinaryFormatter binaryFormatter = new BinaryFormatter();
                 using (var memoryStream = new MemoryStream(bytesLoaded))
@@ -259,10 +276,15 @@ namespace gameoff2018
         /// <param name="elapsedTime"></param>
         public void ProcessPlayerMovement(KeyboardState prevKeyState, KeyboardState keyState, double elapsedTime)
         {
-            if (keyState.IsKeyDown(Key.F1) && !prevKeyState.IsKeyDown(Key.F1))
-                SaveTilesToFile();
-            if (keyState.IsKeyDown(Key.F2) && !prevKeyState.IsKeyDown(Key.F2))
-                LoadTilesFromFile();
+            if (EditorMode)
+            {
+                if (keyState.IsKeyDown(Key.F1) && !prevKeyState.IsKeyDown(Key.F1))
+                    SaveTilesToFile();
+                if (keyState.IsKeyDown(Key.F2) && !prevKeyState.IsKeyDown(Key.F2))
+                    LoadTilesFromFile();
+            }
+            if (keyState.IsKeyDown(Key.F12) && !prevKeyState.IsKeyDown(Key.F12))
+                EditorMode = !EditorMode;
 
             Vector2d newPosition = McPosition;
 
@@ -336,11 +358,43 @@ namespace gameoff2018
             }
         }
 
+        public void MouseMove(MouseMoveEventArgs e, int screenHeight, int screenWidth)
+        {
+            if (EditorMode)
+            {
+                Vector2d worldCoords = ConvertScreenToWorldCoords(
+                    new Point(e.X, screenHeight - e.Y),
+                    screenWidth);
+
+                // Scale from world coords to tile coords (same origin = no translation).
+                int tileX = (int)(worldCoords.X / Constants.TILE_SIZE);
+                int tileY = (int)(worldCoords.Y / Constants.TILE_SIZE);
+
+                if (tileX >= 0 && tileX < Constants.LEVEL_WIDTH)
+                    if (tileY >= 0 && tileY < Constants.LEVEL_HEIGHT)
+                    {
+                        if (e.Mouse.IsButtonDown(MouseButton.Left))
+                        {
+                            Tiles[tileX, tileY] = 1;
+                        }
+                        else if (e.Mouse.IsButtonDown(MouseButton.Right))
+                        {
+                            Tiles[tileX, tileY] = 0;
+                        }
+                    }
+            }
+        }
+
         public void Update(KeyboardState prevKeyState, KeyboardState keyState, double elapsedTime)
         {
-            Angle += elapsedTime * Math.PI;
+            SpriteAnimationPosition += elapsedTime * Constants.SPRITE_SUIT_FPS / Constants.SPRITE_SUIT_FRAMES;
+            if (SpriteAnimationPosition > 1.0)
+                SpriteAnimationPosition -= 1.0;
 
-            LavaHeight += elapsedTime * Constants.LAVA_RISE_SPEED;
+            if (!EditorMode)
+                LavaHeight += elapsedTime * LavaSpeedPerLevel[LevelNumber - 1];
+
+            Angle += elapsedTime * Math.PI;
 
             SpitterLoopValue += elapsedTime * Constants.SPITTER_LOOP_SPEED;
             if (SpitterLoopValue > 1.0)
@@ -368,10 +422,6 @@ namespace gameoff2018
             {
                 FlamesLoopValue -= 1.0;
             }
-
-            SpriteAnimationPosition += elapsedTime * Constants.SPRITE_SUIT_FPS / Constants.SPRITE_SUIT_FRAMES;
-            if (SpriteAnimationPosition > 1.0)
-                SpriteAnimationPosition -= 1.0;
 
             LavaAnimationLoopValue += elapsedTime * Constants.LAVA_LAKE_SPRITE_FPS / Constants.LAVA_LAKE_SPRITE_FRAMES;
             if (LavaAnimationLoopValue > 1.0)

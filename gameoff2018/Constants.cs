@@ -18,9 +18,6 @@
         public const double BG_TILE_SIZE = 128;
         public const double TILE_SIZE = 32;
 
-        //public const double LAVA_RISE_SPEED = 27.5;
-        public const double LAVA_RISE_SPEED = 1.5;
-
         public const double CHAR_PHYSICS_WIDTH = 24;
 
         public const double LAVA_BOMB_SIZE = 10;
