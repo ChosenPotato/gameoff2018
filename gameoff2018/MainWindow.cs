@@ -3,29 +3,11 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
 
 namespace gameoff2018
 {
-    public class LavaBombEntity
-    {
-        public Vector2d Position, Velocity;
-        public int Level;
-        public long TimeCreated;
-
-        public LavaBombEntity(Vector2d pos, Vector2d vel, int level)
-        {
-            Position = pos;
-            Velocity = vel;
-            Level = level;
-            TimeCreated = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-        }
-    }
-
     public sealed class MainWindow : GameWindow
     {
         OpenGlContext GlContext = null;

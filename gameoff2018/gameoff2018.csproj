@@ -52,6 +52,7 @@
     <Compile Include="ActiveLevel.cs" />
     <Compile Include="BoundingBox.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="LavaBombEntity.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="OpenGlContext.cs" />
     <Compile Include="Program.cs" />

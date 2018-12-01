@@ -1,7 +1,6 @@
 ﻿using OpenTK;
 using OpenTK.Input;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -187,12 +186,22 @@ namespace gameoff2018
             return playerY < LavaHeight;
         }
 
+        public BoundingBox GetPlayerBoundingBoxTiles(double playerX, double playerY)
+        {
+            var bb = GetPlayerBoundingBox(playerX, playerY);
+            return new BoundingBox(
+                bb.Left / Constants.TILE_SIZE,
+                bb.Right / Constants.TILE_SIZE,
+                bb.Bottom / Constants.TILE_SIZE,
+                bb.Top / Constants.TILE_SIZE);
+        }
+
         public BoundingBox GetPlayerBoundingBox(double playerX, double playerY)
         {
-            double Left = (playerX + (Constants.SPRITE_SUIT_SIZE / 2) - Constants.CHAR_PHYSICS_WIDTH) / Constants.TILE_SIZE;
-            double Right = (playerX + (Constants.SPRITE_SUIT_SIZE / 2) + Constants.CHAR_PHYSICS_WIDTH) / Constants.TILE_SIZE;
-            double Bottom = playerY / Constants.TILE_SIZE;
-            double Top = (playerY + Constants.SPRITE_SUIT_SIZE) / Constants.TILE_SIZE;
+            double Left = playerX + (Constants.SPRITE_SUIT_SIZE / 2) - Constants.CHAR_PHYSICS_WIDTH;
+            double Right = playerX + (Constants.SPRITE_SUIT_SIZE / 2) + Constants.CHAR_PHYSICS_WIDTH;
+            double Bottom = playerY;
+            double Top = playerY + Constants.SPRITE_SUIT_SIZE;
 
             return new BoundingBox(Left, Right, Bottom, Top);
         }
@@ -205,12 +214,22 @@ namespace gameoff2018
         /// <returns></returns>
         public CollisionOutcome IsIntersectionWithLevel(double playerX, double playerY)
         {
-            BoundingBox boundingBox = GetPlayerBoundingBox(playerX, playerY);
+            BoundingBox boundingBox = GetPlayerBoundingBoxTiles(playerX, playerY);
+            return BBLevelIntersection(boundingBox);
+        }
 
-            int McLeftTile = Convert.ToInt32(Math.Floor(boundingBox.Left));
-            int McRightTile = Convert.ToInt32(Math.Floor(boundingBox.Right));
-            int McBottomTile = Convert.ToInt32(Math.Floor(boundingBox.Bottom));
-            int McTopTile = Convert.ToInt32(Math.Floor(boundingBox.Top));
+        /// <summary>
+        /// Does the given bounding box intersect with the level?
+        /// </summary>
+        /// <param name="playerX"></param>
+        /// <param name="playerY"></param>
+        /// <returns></returns>
+        public CollisionOutcome BBLevelIntersection(BoundingBox bb)
+        {
+            int McLeftTile = Convert.ToInt32(Math.Floor(bb.Left));
+            int McRightTile = Convert.ToInt32(Math.Floor(bb.Right));
+            int McBottomTile = Convert.ToInt32(Math.Floor(bb.Bottom));
+            int McTopTile = Convert.ToInt32(Math.Floor(bb.Top));
 
             bool collision = false;
 
@@ -222,7 +241,7 @@ namespace gameoff2018
                         collision = true;
                     else if (Tiles[tileX, tileY] == Constants.TILE_ID_ROCK)
                         collision = true;
-                    else  if (Tiles[tileX, tileY] == Constants.TILE_ID_FLAG_RED)
+                    else if (Tiles[tileX, tileY] == Constants.TILE_ID_FLAG_RED)
                         return CollisionOutcome.Victory;
                 }
 
@@ -342,11 +361,20 @@ namespace gameoff2018
             if (LavaAnimationLoopValue > 1.0)
                 LavaAnimationLoopValue -= 1.0;
 
+            var playerBoundingBox = GetPlayerBoundingBox(McPosition.X, McPosition.Y);
+            var bbs = LavaBombs.Select(x => x.GetBoundingBox());
             foreach (LavaBombEntity b in LavaBombs)
             {
                 if (b.Level == 2)
                     b.Velocity.Y -= Constants.GRAVITY * elapsedTime;
                 b.Position += b.Velocity * elapsedTime;
+                var bombBB = b.GetBoundingBox();
+
+                if (BoundingBox.TestIntersection(playerBoundingBox, bombBB))
+                {
+                    ResetLevel(LevelResetCause.Death);
+                    return;
+                }
             }
 
             ProcessPlayerMovement(prevKeyState, keyState, elapsedTime);
