@@ -69,8 +69,9 @@ namespace gameoff2018
 
         public void RenderLevel(int screenWidth, int screenHeight)
         {
-            double scaleFactor = screenWidth / (Constants.TILE_SIZE * Constants.LEVEL_EXT_WIDTH);
+            double scaleFactor = Level.WorldToScreenScaleFactor(screenWidth);
 
+            // Render background.
             GL.LoadIdentity();
             GL.Scale(scaleFactor * 0.5, scaleFactor * 0.5, 1.0);
             // account for border
@@ -84,7 +85,6 @@ namespace gameoff2018
                 GL.Translate(0.0, -Level.McPosition.Y, 0.0);
             }
 
-            // Render background.
             foreach (int x in Enumerable.Range(-1, Constants.LEVEL_WIDTH + 2))
                 foreach (int y in Enumerable.Range(-1, Constants.LEVEL_HEIGHT + 2))
                 {
@@ -98,18 +98,13 @@ namespace gameoff2018
                     GL.PopMatrix();
                 }
 
+            // Set up matrices for foreground objects.
             GL.LoadIdentity();
             GL.Scale(scaleFactor, scaleFactor, 1.0);
+
+            Vector2d offset = Level.GetWorldToScreenOffset();
             // account for border
-            GL.Translate(Constants.TILE_SIZE, Constants.TILE_SIZE, 0.0);
-            // if they are more than x tiles up
-            if (Level.McPosition.Y > Constants.TILE_SIZE * 12)
-            {
-                // character appears some distance from the bottom of the screen
-                GL.Translate(0.0, Constants.TILE_SIZE * 12, 0.0);
-                // account for character position in level
-                GL.Translate(0.0, -Level.McPosition.Y, 0.0);
-            }
+            GL.Translate(offset.X, offset.Y, 0.0);
 
             int lavaFrameToRender = (int)(Level.LavaAnimationLoopValue * Constants.LAVA_LAKE_SPRITE_FRAMES);
             if (lavaFrameToRender < 0)

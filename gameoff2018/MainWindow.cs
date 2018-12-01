@@ -89,23 +89,22 @@ namespace gameoff2018
         {
             Debug.WriteLine($"(X: {e.X}) Y: {e.Y}");
 
-            // Screen coordinates (inverted y)
-            double x = e.X;
-            double y = ScreenHeight - e.Y;
-
-            // Scale from world coords to screen ones (different origin = needs a translation).
-            double worldToScreenScaleFactor = (Constants.TILE_SIZE * Constants.LEVEL_EXT_WIDTH) / CurrentScreenWidth;
-
-            double worldX = x * worldToScreenScaleFactor - Constants.TILE_SIZE;
-            double worldY = y * worldToScreenScaleFactor - Constants.TILE_SIZE;
+            Vector2d worldCoords = Level.ConvertScreenToWorldCoords(
+                new Point(e.X, (int)ScreenHeight - e.Y),
+                CurrentScreenWidth);
 
             // Scale from world coords to tile coords (same origin = no translation).
-            int tileX = (int)(worldX / Constants.TILE_SIZE);
-            int tileY = (int)(worldY / Constants.TILE_SIZE);
+            int tileX = (int)(worldCoords.X / Constants.TILE_SIZE);
+            int tileY = (int)(worldCoords.Y / Constants.TILE_SIZE);
 
             if (tileX >= 0 && tileX < Constants.LEVEL_WIDTH)
                 if (tileY >= 0 && tileY < Constants.LEVEL_HEIGHT)
-                    Level.Tiles[tileX, tileY] = 1;
+                {
+                    if (e.Button == MouseButton.Left)
+                        Level.Tiles[tileX, tileY] = 1;
+                    if (e.Button == MouseButton.Right)
+                        Level.Tiles[tileX, tileY] = 0;
+                }
             //Level.LavaBombs.Add(new LavaBombEntity(new Vector2d(x, y), new Vector2d(0, 360), 3));
         }
 

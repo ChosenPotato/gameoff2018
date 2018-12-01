@@ -18,10 +18,11 @@ namespace gameoff2018
 
         public const double CHARACTER_MOVE_SPEED = 240;
 
-        public const double BG_TILE_SIZE = 64;
+        public const double BG_TILE_SIZE = 128;
         public const double TILE_SIZE = 32;
 
-        public const double LAVA_RISE_SPEED = 10;
+        // 27.5 is a challenge with a given level setup
+        public const double LAVA_RISE_SPEED = 27.5;
 
         public const int TEX_ID_LAVA_BOMB = 0;
         public const int TEX_ID_TILE = 1;
@@ -35,7 +36,7 @@ namespace gameoff2018
         public const double TEXT_KERNING = 14;
         public const double TEXT_DEFAULT_HEIGHT = 32;
 
-        public const double MC_PHYSICS_WIDTH = 32;
+        public const double CHAR_PHYSICS_WIDTH = 24;
         public const double SPRITE_SUIT_SIZE = 96;
         public const double SPRITE_SUIT_FPS = 12;
         public const int SPRITE_SUIT_FRAMES = 8;

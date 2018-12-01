@@ -3,6 +3,7 @@ using OpenTK.Input;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -59,13 +60,45 @@ namespace gameoff2018
             McRunning = false;
             LavaHeight = 0;
             facing = CharacterFacing.Left;
-            Tiles = new int[Constants.LEVEL_WIDTH, Constants.LEVEL_HEIGHT];
-            Tiles[0, 0] = 1;
-            Tiles[1, 0] = 1;
-            Tiles[2, 0] = 1;
-            Tiles[9, 6] = 1;
+            //Tiles = new int[Constants.LEVEL_WIDTH, Constants.LEVEL_HEIGHT];
+            //Tiles[0, 0] = 1;
+            //Tiles[1, 0] = 1;
+            //Tiles[2, 0] = 1;
+            //Tiles[9, 6] = 1;
+            LoadTilesFromFile();
             SpriteAnimationPosition = 0;
             LavaAnimationLoopValue = 0;
+        }
+
+        // provided in world coords
+        public Vector2d GetWorldToScreenOffset()
+        {
+            return
+                new Vector2d(Constants.TILE_SIZE, Constants.TILE_SIZE)
+                + (
+                        McPosition.Y > Constants.TILE_SIZE * 12
+                            ? new Vector2d(0.0, Constants.TILE_SIZE * 12 - McPosition.Y)
+                            : Vector2d.Zero
+                    );
+        }
+
+        public double WorldToScreenScaleFactor(int screenWidth)
+        {
+            return screenWidth / (Constants.TILE_SIZE * Constants.LEVEL_EXT_WIDTH);
+        }
+
+        public Point ConvertWorldToScreenCoords(Vector2d worldCoords, int screenWidth)
+        {
+            Vector2d toScale = worldCoords + GetWorldToScreenOffset();
+            Vector2d doubleValues = toScale * WorldToScreenScaleFactor(screenWidth);
+            return new Point((int)doubleValues.X, (int)doubleValues.Y);
+        }
+
+        public Vector2d ConvertScreenToWorldCoords(Point screenCoords, int screenWidth)
+        {
+            Vector2d asVector = new Vector2d(screenCoords.X, screenCoords.Y);
+            Vector2d scaled = asVector / WorldToScreenScaleFactor(screenWidth);
+            return scaled - GetWorldToScreenOffset();
         }
 
         public void SaveTilesToFile()
@@ -127,8 +160,8 @@ namespace gameoff2018
         /// <returns></returns>
         public bool IsIntersectionWithLevel(double playerX, double playerY)
         {
-            int McLeftTile = Convert.ToInt32(Math.Floor((playerX + (Constants.SPRITE_SUIT_SIZE / 2) - Constants.MC_PHYSICS_WIDTH) / Constants.TILE_SIZE));
-            int McRightTile = Convert.ToInt32(Math.Floor((playerX + (Constants.SPRITE_SUIT_SIZE / 2) + Constants.MC_PHYSICS_WIDTH) / Constants.TILE_SIZE));
+            int McLeftTile = Convert.ToInt32(Math.Floor((playerX + (Constants.SPRITE_SUIT_SIZE / 2) - Constants.CHAR_PHYSICS_WIDTH) / Constants.TILE_SIZE));
+            int McRightTile = Convert.ToInt32(Math.Floor((playerX + (Constants.SPRITE_SUIT_SIZE / 2) + Constants.CHAR_PHYSICS_WIDTH) / Constants.TILE_SIZE));
             int McBottomTile = Convert.ToInt32(Math.Floor(playerY / Constants.TILE_SIZE));
             int McTopTile = Convert.ToInt32(Math.Floor((playerY + Constants.SPRITE_SUIT_SIZE) / Constants.TILE_SIZE));
             
