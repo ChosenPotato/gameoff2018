@@ -36,9 +36,14 @@ namespace gameoff2018
             Bitmap.UnlockBits(data);
         }
 
-        public void GlRenderFromCorner(double scale)
+        public void GlRenderFromCorner(double scale, bool flip = false)
         {
             GL.Scale(scale, scale, 1.0);
+            if (flip)
+            {
+                GL.Translate(1.0, 0.0, 0.0);
+                GL.Scale(-1.0, 1.0, 1.0);
+            }
             GL.BindTexture(TextureTarget.Texture2D, Id);
 
             GL.Begin(PrimitiveType.Quads);
