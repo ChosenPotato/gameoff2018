@@ -12,9 +12,12 @@ namespace gameoff2018
 {
     public enum CharacterFacing { Left, Right };
     public enum CollisionOutcome { None, Collision, Victory }
+    public enum LevelResetCause { Start, Death, Victory }
 
     public class ActiveLevel
     {
+        public int LevelNumber;
+
         /// <summary>
         /// Tiles for the level, such as walls or hazards.
         /// </summary>
@@ -52,27 +55,32 @@ namespace gameoff2018
 
         public ActiveLevel()
         {
-            ResetLevel();
+            ResetLevel(LevelResetCause.Start);
         }
 
-        public void ResetLevel()
+        public void ResetLevel(LevelResetCause resetCause)
         {
-            LoadTilesFromFile();
+            if (resetCause == LevelResetCause.Start)
+                LevelNumber = 1;
+            else if (resetCause == LevelResetCause.Victory)
+                ++LevelNumber;
 
-            LavaBombs = new List<LavaBombEntity>();
-            //LavaBombs.Add(new LavaBombEntity(new Vector2d(300, 300), new Vector2d(0, 360), 4));
-            Angle = 0.0;
+            LoadTilesFromFile();
             Vector2d startPositionToSet = new Vector2d(256, 256);
             for (int tileX = 0; tileX < Constants.LEVEL_WIDTH; ++tileX)
                 for (int tileY = 0; tileY < Constants.LEVEL_HEIGHT; ++tileY)
                     if (Tiles[tileX, tileY] == Constants.TILE_ID_FLAG_WHITE)
                     {
-                        startPositionToSet = new Vector2d(tileX * Constants.TILE_SIZE + Constants.TILE_SIZE * 0.5 - Constants.SPRITE_SUIT_SIZE / 2, (tileY + 1) * Constants.TILE_SIZE);
+                        startPositionToSet = new Vector2d(
+                            tileX * Constants.TILE_SIZE + Constants.TILE_SIZE * 0.5 - Constants.SPRITE_SUIT_SIZE / 2,
+                            (tileY + 0.05) * Constants.TILE_SIZE);
                         goto Found;
                     }
             
             Found:
             {
+                LavaBombs = new List<LavaBombEntity>();
+                Angle = 0.0;
                 McPosition = startPositionToSet;
                 McVelocity = new Vector2d(0, 0);
                 McGrounded = false;
@@ -131,23 +139,31 @@ namespace gameoff2018
                 bytesToSave = memoryStream.ToArray();
             }
 
-            File.WriteAllBytes("level_1", bytesToSave);
+            File.WriteAllBytes($"level_{LevelNumber}", bytesToSave);
         }
 
         public void LoadTilesFromFile()
         {
-            byte[] bytesLoaded = File.ReadAllBytes("level_1");
-
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-            using (var memoryStream = new MemoryStream(bytesLoaded))
+            byte[] bytesLoaded;
+            try
             {
-                int[,] tilesToSet = (int[,])binaryFormatter.Deserialize(memoryStream);
+                bytesLoaded = File.ReadAllBytes($"level_{LevelNumber}");
+
+                BinaryFormatter binaryFormatter = new BinaryFormatter();
+                using (var memoryStream = new MemoryStream(bytesLoaded))
+                {
+                    int[,] tilesToSet = (int[,])binaryFormatter.Deserialize(memoryStream);
+                    Tiles = new int[Constants.LEVEL_WIDTH, Constants.LEVEL_HEIGHT];
+                    for (int x = 0; x < tilesToSet.GetLength(0); x++)
+                        for (int y = 0; y < tilesToSet.GetLength(1); y++)
+                        {
+                            Tiles[x, y] = tilesToSet[x, y];
+                        }
+                }
+            }
+            catch
+            {
                 Tiles = new int[Constants.LEVEL_WIDTH, Constants.LEVEL_HEIGHT];
-                for (int x = 0; x < tilesToSet.GetLength(0); x++)
-                    for (int y = 0; y < tilesToSet.GetLength(1); y++)
-                    {
-                        Tiles[x, y] = tilesToSet[x, y];
-                    }
             }
         }
 
@@ -249,7 +265,7 @@ namespace gameoff2018
                     McPosition = newPosition;
                     break;
                 case CollisionOutcome.Victory:
-                    ResetLevel();
+                    ResetLevel(LevelResetCause.Victory);
                     return;
                 default:
                     break;
@@ -269,7 +285,7 @@ namespace gameoff2018
                     McGrounded = false;
                     break;
                 case CollisionOutcome.Victory:
-                    ResetLevel();
+                    ResetLevel(LevelResetCause.Victory);
                     return;
                 default:
                     McVelocity = Vector2d.Zero;
@@ -279,7 +295,7 @@ namespace gameoff2018
 
             if (IsLavaCollision(McPosition.Y))
             {
-                ResetLevel();
+                ResetLevel(LevelResetCause.Death);
                 return;
             }
         }
@@ -316,7 +332,8 @@ namespace gameoff2018
 
             foreach (LavaBombEntity b in LavaBombs)
             {
-                b.Velocity.Y -= Constants.GRAVITY * elapsedTime;
+                if (b.Level == 2)
+                    b.Velocity.Y -= Constants.GRAVITY * elapsedTime;
                 b.Position += b.Velocity * elapsedTime;
             }
 
@@ -331,7 +348,7 @@ namespace gameoff2018
                     x.TimeCreated + (x.Level == 2 ? Constants.LAVA_BOMB_TIMER_MS : Constants.LAVA_BULLET_TIMER_MS)
                     > DateTimeOffset.Now.ToUnixTimeMilliseconds())
                 .ToList();
-            IEnumerable<Vector2d> vecs = Enumerable.Range(1, 10).Select(x => Math.PI * 2 / 10 * x).Select(x => Util.VectorFromAngle(x) * 100.0);
+            IEnumerable<Vector2d> vecs = Enumerable.Range(1, 10).Select(x => Math.PI * 2 / 10 * x).Select(x => Util.VectorFromAngle(x) * 150.0);
             IEnumerable<LavaBombEntity> spawned =
                 toSpawnFrom.SelectMany(x => vecs.Select(y => new LavaBombEntity(x.Position, x.Velocity + y * x.Level, x.Level - 1)));
 

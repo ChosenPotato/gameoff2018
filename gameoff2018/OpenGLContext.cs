@@ -241,7 +241,8 @@ namespace gameoff2018
                 GL.PopMatrix();
             }
 
-            //RenderString(300, 300, "How not to escape a volcano...");
+            GL.LoadIdentity();
+            RenderString(0, screenHeight - 40, $"Level {Level.LevelNumber}");
         }
 
         public void RenderString(double x, double y, string text, double size = Constants.TEXT_DEFAULT_HEIGHT)
