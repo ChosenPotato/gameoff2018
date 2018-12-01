@@ -16,6 +16,8 @@ namespace gameoff2018
         KeyboardState LatestKeyState;
         double ScreenHeight = 720.0;
 
+        double FrameTimeCounter = 0.0;
+
         int CurrentScreenWidth = Constants.INITIAL_SCREEN_WIDTH;
         int CurrentScreenHeight = Constants.INITIAL_SCREEN_WIDTH;
 
@@ -62,7 +64,15 @@ namespace gameoff2018
         
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            Level.Update(LatestKeyState, Keyboard.GetState(), e.Time);
+            double interval = 1.0 / Constants.FPS;
+
+            FrameTimeCounter += e.Time;
+
+            while (FrameTimeCounter > interval)
+            {
+                Level.Update(LatestKeyState, Keyboard.GetState(), e.Time);
+                FrameTimeCounter -= interval;
+            }
 
             HandleKeyboard();
         }

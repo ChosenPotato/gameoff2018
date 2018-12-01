@@ -8,6 +8,8 @@
         public const int LEVEL_WIDTH = 48;
         public const int LEVEL_HEIGHT = 96;
 
+        public const int FPS = 60;
+
         /// <summary>
         /// Including border tiles.
         /// </summary>

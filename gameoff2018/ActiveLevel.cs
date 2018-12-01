@@ -157,7 +157,7 @@ namespace gameoff2018
                 bytesToSave = memoryStream.ToArray();
             }
 
-            File.WriteAllBytes($"level_{LevelNumber}", bytesToSave);
+            File.WriteAllBytes($"levels/level_{LevelNumber}", bytesToSave);
         }
 
         public void LoadTilesFromFile()
