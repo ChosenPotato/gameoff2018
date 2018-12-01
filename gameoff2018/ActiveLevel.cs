@@ -1,8 +1,11 @@
 ﻿using OpenTK;
 using OpenTK.Input;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace gameoff2018
 {
@@ -26,7 +29,7 @@ namespace gameoff2018
         public CharacterFacing facing;
 
         /// <summary>
-        /// Tiles for the level, eg. background, wall, hazard.
+        /// Tiles for the level, such as walls or hazards.
         /// </summary>
         public int[,] Tiles;
 
@@ -63,6 +66,31 @@ namespace gameoff2018
             Tiles[9, 6] = 1;
             SpriteAnimationPosition = 0;
             LavaAnimationLoopValue = 0;
+        }
+
+        public void SaveTilesToFile()
+        {
+            byte[] bytesToSave;
+
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            using (var memoryStream = new MemoryStream())
+            {
+                binaryFormatter.Serialize(memoryStream, Tiles);
+                bytesToSave = memoryStream.ToArray();
+            }
+
+            File.WriteAllBytes("level_1", bytesToSave);
+        }
+
+        public void LoadTilesFromFile()
+        {
+            byte[] bytesLoaded = File.ReadAllBytes("level_1");
+
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            using (var memoryStream = new MemoryStream(bytesLoaded))
+            {
+                Tiles = (int[,])binaryFormatter.Deserialize(memoryStream);
+            }
         }
 
         /// <summary>
@@ -117,6 +145,11 @@ namespace gameoff2018
         /// <param name="elapsedTime"></param>
         public void ProcessPlayerMovement(KeyboardState prevKeyState, KeyboardState keyState, double elapsedTime)
         {
+            if (keyState.IsKeyDown(Key.F1) && !prevKeyState.IsKeyDown(Key.F1))
+                SaveTilesToFile();
+            if (keyState.IsKeyDown(Key.F2) && !prevKeyState.IsKeyDown(Key.F2))
+                LoadTilesFromFile();
+
             Vector2d newPosition = McPosition;
 
             if (keyState.IsKeyDown(Key.Left) && !keyState.IsKeyDown(Key.Right))
