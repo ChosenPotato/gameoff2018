@@ -11,6 +11,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 namespace gameoff2018
 {
     public enum CharacterFacing { Left, Right };
+    public enum CollisionOutcome { None, Collision, Victory }
 
     public class ActiveLevel
     {
@@ -176,24 +177,31 @@ namespace gameoff2018
         /// <param name="playerX"></param>
         /// <param name="playerY"></param>
         /// <returns></returns>
-        public bool IsIntersectionWithLevel(double playerX, double playerY)
+        public CollisionOutcome IsIntersectionWithLevel(double playerX, double playerY)
         {
             int McLeftTile = Convert.ToInt32(Math.Floor((playerX + (Constants.SPRITE_SUIT_SIZE / 2) - Constants.CHAR_PHYSICS_WIDTH) / Constants.TILE_SIZE));
             int McRightTile = Convert.ToInt32(Math.Floor((playerX + (Constants.SPRITE_SUIT_SIZE / 2) + Constants.CHAR_PHYSICS_WIDTH) / Constants.TILE_SIZE));
             int McBottomTile = Convert.ToInt32(Math.Floor(playerY / Constants.TILE_SIZE));
             int McTopTile = Convert.ToInt32(Math.Floor((playerY + Constants.SPRITE_SUIT_SIZE) / Constants.TILE_SIZE));
-            
+
+            bool collision = false;
+
             for (int tileX = McLeftTile; tileX <= McRightTile; ++tileX)
                 for (int tileY = McBottomTile; tileY <= McTopTile; ++tileY)
                 {
                     if (tileX < 0 || tileX >= Constants.LEVEL_WIDTH
                         || tileY < 0 || tileY >= Constants.LEVEL_HEIGHT)
-                        return true;
-                    if (Tiles[tileX, tileY] == Constants.TILE_ID_ROCK)
-                        return true;
+                        collision = true;
+                    else if (Tiles[tileX, tileY] == Constants.TILE_ID_ROCK)
+                        collision = true;
+                    else  if (Tiles[tileX, tileY] == Constants.TILE_ID_FLAG_RED)
+                        return CollisionOutcome.Victory;
                 }
 
-            return false;
+            if (collision)
+                return CollisionOutcome.Collision;
+            else
+                return CollisionOutcome.None;
         }
 
         /// <summary>
@@ -234,27 +242,46 @@ namespace gameoff2018
                 }
             }
 
-            if (!IsIntersectionWithLevel(newPosition.X, newPosition.Y))
-                McPosition = newPosition;
+            CollisionOutcome outcome = IsIntersectionWithLevel(newPosition.X, newPosition.Y);
+            switch (outcome)
+            {
+                case CollisionOutcome.None:
+                    McPosition = newPosition;
+                    break;
+                case CollisionOutcome.Victory:
+                    ResetLevel();
+                    return;
+                default:
+                    break;
+            }
+            
             newPosition = McPosition;
 
             // collisions - process Y
             McVelocity.Y -= Constants.GRAVITY * elapsedTime;
             newPosition.Y += McVelocity.Y * elapsedTime;
 
-            if (!IsIntersectionWithLevel(newPosition.X, newPosition.Y))
+            outcome = IsIntersectionWithLevel(newPosition.X, newPosition.Y);
+            switch (outcome)
             {
-                McPosition = newPosition;
-                McGrounded = false;
-            }
-            else
-            {
-                McVelocity = Vector2d.Zero;
-                McGrounded = true;
+                case CollisionOutcome.None:
+                    McPosition = newPosition;
+                    McGrounded = false;
+                    break;
+                case CollisionOutcome.Victory:
+                    ResetLevel();
+                    return;
+                default:
+                    McVelocity = Vector2d.Zero;
+                    McGrounded = true;
+                    break;
             }
 
             if (IsLavaCollision(McPosition.Y))
+            {
                 ResetLevel();
+                return;
+            }
         }
 
         public void Update(KeyboardState prevKeyState, KeyboardState keyState, double elapsedTime)
