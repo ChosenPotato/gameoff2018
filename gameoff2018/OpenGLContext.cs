@@ -18,14 +18,16 @@ namespace gameoff2018
             {Constants.TEX_ID_SPITTER, new TexObject(@"assets\spitter.png")},
             {Constants.TEX_ID_BULLET, new TexObject(@"assets\lava-bullet-2.png")},
             {Constants.TEX_ID_FLAG_RED, new TexObject(@"assets\flag-red.png")},
-            {Constants.TEX_ID_FLAG_WHITE, new TexObject(@"assets\flag-white.png")}
+            {Constants.TEX_ID_FLAG_WHITE, new TexObject(@"assets\flag-white.png")},
+            {Constants.TEX_ID_FLAME_SPITTER, new TexObject(@"assets\spitter-flame.png")}
         };
         Dictionary<int, SpriteTexObject> spriteTexObjects = new Dictionary<int, SpriteTexObject>
         {
             { Constants.TEX_ID_SPRITE_SUIT, new SpriteTexObject(@"assets\sprite-suit.png", 256, 8)},
             { Constants.TEX_ID_SPRITE_FONT, new SpriteTexObject(@"assets\sprite-font.png", 32, 95)},
             { Constants.TEX_ID_SPRITE_LAVA_LAKE, new SpriteTexObject(@"assets\sprite-lava-lake.png", 128, 2)},
-            { Constants.TEX_ID_SPRITE_LAVA_SURFACE, new SpriteTexObject(@"assets\sprite-lava-surface.png", 128, 2)}
+            { Constants.TEX_ID_SPRITE_LAVA_SURFACE, new SpriteTexObject(@"assets\sprite-lava-surface.png", 128, 2)},
+            { Constants.TEX_ID_SPRITE_FLAMES_BIG, new SpriteTexObject(@"assets\sprite-flames-big.png", 256, Constants.SPRITE_FLAMES_FRAMES)}
         };
         ActiveLevel Level = null;
 
@@ -174,7 +176,7 @@ namespace gameoff2018
                     {
                         GL.Translate(Constants.TILE_SIZE * x, Constants.TILE_SIZE * y, 0);
                         int textureToUse = -1;
-
+                        
                         if
                         (
                             x < 0
@@ -201,6 +203,9 @@ namespace gameoff2018
                                 case Constants.TILE_ID_FLAG_WHITE:
                                     textureToUse = Constants.TEX_ID_FLAG_WHITE;
                                     break;
+                                case Constants.TILE_ID_FLAME_SPITTER:
+                                    textureToUse = Constants.TEX_ID_FLAME_SPITTER;
+                                    break;
                                 case Constants.TILE_ID_EMPTY:
                                 default:
                                     break;
@@ -211,6 +216,35 @@ namespace gameoff2018
                             tileTexObject.GlRenderFromCorner(Constants.TILE_SIZE, false);
                     }
                     GL.PopMatrix();
+                }
+
+                if (Level.FlameSpitterLoopValue > 0.33)
+                {
+                    // Render flames
+                    foreach (int x in Enumerable.Range(-1, Constants.LEVEL_WIDTH + 2))
+                        foreach (int y in Enumerable.Range(-1, Constants.LEVEL_HEIGHT + 2))
+                        {
+                            GL.PushMatrix();
+                            {
+                                GL.Translate(Constants.TILE_SIZE * x - Constants.SPRITE_FLAMES_SIZE / 4, Constants.TILE_SIZE * (y + 1), 0);
+
+                                if
+                                (!(
+                                    x < 0
+                                    || x >= Constants.LEVEL_WIDTH
+                                    || y < 0
+                                    || y >= Constants.LEVEL_HEIGHT
+                                ))
+                                {
+                                    if (Level.Tiles[x, y] == Constants.TILE_ID_FLAME_SPITTER)
+                                    {
+                                        if (spriteTexObjects.TryGetValue(Constants.TEX_ID_SPRITE_FLAMES_BIG, out SpriteTexObject flamesTexObject))
+                                            flamesTexObject.GlRenderFromCorner(Constants.SPRITE_FLAMES_SIZE, Level.FlamesLoopValue > 0.5 ? 0 : 1, false);
+                                    }
+                                }
+                            }
+                            GL.PopMatrix();
+                        }
                 }
 
             // Render sprite suit.

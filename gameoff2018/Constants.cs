@@ -21,9 +21,6 @@
         //public const double LAVA_RISE_SPEED = 27.5;
         public const double LAVA_RISE_SPEED = 1.5;
 
-        public const double TEXT_KERNING = 14;
-        public const double TEXT_DEFAULT_HEIGHT = 32;
-
         public const double CHAR_PHYSICS_WIDTH = 24;
 
         public const double LAVA_BOMB_SIZE = 10;
@@ -31,7 +28,10 @@
         public const double GRAVITY = 1200.0;
         public const double JUMP_SPEED = 700.0;
 
-        public const double SPITTER_LOOP_SPEED = 0.25;
+        public const double SPITTER_LOOP_SPEED = 0.5;
+        public const double FLAME_SPITTER_LOOP_SPEED = 0.15;
+        public const double FLAMES_LOOP_SPEED = 8.0;
+
         public const double LAVA_BOMB_TIMER_MS = 500;
         public const double LAVA_BULLET_TIMER_MS = 1200;
 
@@ -41,6 +41,11 @@
         public const int SPRITE_SUIT_FRAMES = 8;
 
         public const int SPRITE_FONT_FRAMES = 95;
+        public const double TEXT_KERNING = 14;
+        public const double TEXT_DEFAULT_HEIGHT = 32;
+
+        public const int SPRITE_FLAMES_SIZE = 64;
+        public const int SPRITE_FLAMES_FRAMES = 2;
 
         public const double LAVA_LAKE_SPRITE_SIZE = 32;
         public const double LAVA_LAKE_SPRITE_FPS = 1.66;
@@ -55,6 +60,7 @@
         public const int TILE_ID_SPITTER = 2;
         public const int TILE_ID_FLAG_RED = 3;
         public const int TILE_ID_FLAG_WHITE = 4;
+        public const int TILE_ID_FLAME_SPITTER = 5;
 
         // Texture constants.
         public const int TEX_ID_LAVA_BOMB = 0;
@@ -69,5 +75,7 @@
         public const int TEX_ID_BULLET = 9;
         public const int TEX_ID_FLAG_RED = 10;
         public const int TEX_ID_FLAG_WHITE = 11;
+        public const int TEX_ID_FLAME_SPITTER = 12;
+        public const int TEX_ID_SPRITE_FLAMES_BIG = 13;
     }
 }

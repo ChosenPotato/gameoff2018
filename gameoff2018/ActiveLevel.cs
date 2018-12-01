@@ -46,11 +46,10 @@ namespace gameoff2018
         /// Normalised frame to render (rate of increase may not be 1/sec).
         /// </summary>
         public double LavaAnimationLoopValue;
-
-        /// <summary>
-        /// 
-        /// </summary>
+        
         public double SpitterLoopValue;
+        public double FlameSpitterLoopValue;
+        public double FlamesLoopValue;
 
         public ActiveLevel()
         {
@@ -93,6 +92,9 @@ namespace gameoff2018
                 //Tiles[9, 6] = 1;
                 SpriteAnimationPosition = 0;
                 LavaAnimationLoopValue = 0;
+                SpitterLoopValue = 0;
+                FlameSpitterLoopValue = 0;
+                FlamesLoopValue = 0;
             }
         }
 
@@ -264,13 +266,16 @@ namespace gameoff2018
 
             Vector2d newPosition = McPosition;
 
-            if (keyState.IsKeyDown(Key.Left) && !keyState.IsKeyDown(Key.Right))
+            bool moveLeft = keyState.IsKeyDown(Key.Left) || keyState.IsKeyDown(Key.A);
+            bool moveRight = keyState.IsKeyDown(Key.Right) || keyState.IsKeyDown(Key.D);
+
+            if (moveLeft && !moveRight)
             {
                 McRunning = true;
                 newPosition.X -= Constants.CHARACTER_MOVE_SPEED * elapsedTime;
                 facing = CharacterFacing.Left;
             }
-            else if (keyState.IsKeyDown(Key.Right) && !keyState.IsKeyDown(Key.Left))
+            else if (moveRight && !moveLeft)
             {
                 McRunning = true;
                 newPosition.X += Constants.CHARACTER_MOVE_SPEED * elapsedTime;
@@ -280,7 +285,7 @@ namespace gameoff2018
             {
                 McRunning = false;
             }
-            if (keyState.IsKeyDown(Key.Space) && !prevKeyState.IsKeyDown(Key.Space))
+            if ((keyState.IsKeyDown(Key.Space) || keyState.IsKeyDown(Key.W)) && !(prevKeyState.IsKeyDown(Key.Space) || keyState.IsKeyDown(Key.W)))
             {
                 if (McGrounded)
                 {
@@ -353,6 +358,17 @@ namespace gameoff2018
                         }
             }
 
+            FlameSpitterLoopValue += elapsedTime * Constants.FLAME_SPITTER_LOOP_SPEED;
+            if (FlameSpitterLoopValue > 1.0)
+            {
+                FlameSpitterLoopValue -= 1.0;
+            }
+            FlamesLoopValue += elapsedTime * Constants.FLAMES_LOOP_SPEED;
+            if (FlamesLoopValue > 1.0)
+            {
+                FlamesLoopValue -= 1.0;
+            }
+
             SpriteAnimationPosition += elapsedTime * Constants.SPRITE_SUIT_FPS / Constants.SPRITE_SUIT_FRAMES;
             if (SpriteAnimationPosition > 1.0)
                 SpriteAnimationPosition -= 1.0;
@@ -375,6 +391,26 @@ namespace gameoff2018
                     ResetLevel(LevelResetCause.Death);
                     return;
                 }
+            }
+
+            if (FlameSpitterLoopValue > 0.33)
+            {
+                for (int tileX = 0; tileX < Constants.LEVEL_WIDTH; ++tileX)
+                    for (int tileY = 0; tileY < Constants.LEVEL_HEIGHT; ++tileY)
+                        if (Tiles[tileX, tileY] == Constants.TILE_ID_FLAME_SPITTER)
+                        {
+                            var flameSpitterBoundingBox = new BoundingBox(
+                                tileX * Constants.TILE_SIZE,
+                                (tileX + 1) * Constants.TILE_SIZE,
+                                tileY * Constants.TILE_SIZE,
+                                (tileY + 3) * Constants.TILE_SIZE);
+
+                            if (BoundingBox.TestIntersection(playerBoundingBox, flameSpitterBoundingBox))
+                            {
+                                ResetLevel(LevelResetCause.Death);
+                                return;
+                            }
+                        }
             }
 
             ProcessPlayerMovement(prevKeyState, keyState, elapsedTime);
