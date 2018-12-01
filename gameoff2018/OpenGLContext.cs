@@ -16,6 +16,7 @@ namespace gameoff2018
             {Constants.TEX_ID_TILE, new TexObject(@"assets\tile.png")},
             {Constants.TEX_ID_BG, new TexObject(@"assets\bg1.png")},
             {Constants.TEX_ID_STANDING, new TexObject(@"assets\sprite-standing.png")},
+            {Constants.TEX_ID_SPITTER, new TexObject(@"assets\spitter.png")},
         };
         Dictionary<int, SpriteTexObject> spriteTexObjects = new Dictionary<int, SpriteTexObject>
         {
@@ -59,13 +60,6 @@ namespace gameoff2018
 
             RenderLevel(width, height);
         }
-
-        //public Point WorldToScreenCoords(Vector2d worldV, double screenWidth)
-        //{
-        //    double scaleFactor = screenWidth / (Constants.TILE_SIZE * Constants.LEVEL_EXT_WIDTH);
-        //    Vector2d scaled = worldV * scaleFactor;
-        //    return new Point((int)(scaled.X + Constants.TILE_SIZE), (int)(scaled.Y + Constants.TILE_SIZE));
-        //}
 
         public void RenderLevel(int screenWidth, int screenHeight)
         {
@@ -172,6 +166,9 @@ namespace gameoff2018
                             {
                                 case 1:
                                     textureToUse = Constants.TEX_ID_TILE;
+                                    break;
+                                case 2:
+                                    textureToUse = Constants.TEX_ID_SPITTER;
                                     break;
                                 case 0:
                                 default:

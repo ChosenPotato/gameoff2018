@@ -32,6 +32,7 @@ namespace gameoff2018
         public const int TEX_ID_SPRITE_LAVA_LAKE = 5;
         public const int TEX_ID_SPRITE_LAVA_SURFACE = 6;
         public const int TEX_ID_STANDING = 7;
+        public const int TEX_ID_SPITTER = 8;
 
         public const double TEXT_KERNING = 14;
         public const double TEXT_DEFAULT_HEIGHT = 32;

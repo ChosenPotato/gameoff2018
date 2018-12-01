@@ -101,7 +101,13 @@ namespace gameoff2018
                 if (tileY >= 0 && tileY < Constants.LEVEL_HEIGHT)
                 {
                     if (e.Button == MouseButton.Left)
-                        Level.Tiles[tileX, tileY] = 1;
+                    {
+                        ref int tile = ref Level.Tiles[tileX, tileY];
+                        if (tile < 2)
+                            ++tile;
+                        else
+                            tile = 0;
+                    }
                     if (e.Button == MouseButton.Right)
                         Level.Tiles[tileX, tileY] = 0;
                 }
@@ -120,7 +126,7 @@ namespace gameoff2018
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            Title = "Gameoff 2018";
+            Title = "Hot Rocks, Cold Feet";
 
             GlContext.RenderFrame(CurrentScreenWidth, CurrentScreenHeight);
 
