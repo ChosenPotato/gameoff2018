@@ -79,11 +79,17 @@ namespace gameoff2018
 
         protected override void OnMouseMove(MouseMoveEventArgs e)
         {
+            if (Level.GameWon)
+                return;
+
             Level.MouseMove(e, (int)ScreenHeight, CurrentScreenWidth);
         }
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
+            if (Level.GameWon)
+                return;
+
             if (Level.EditorMode)
             {
                 Debug.WriteLine($"(X: {e.X}) Y: {e.Y}");
