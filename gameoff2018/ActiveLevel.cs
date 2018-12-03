@@ -148,6 +148,9 @@ namespace gameoff2018
 
         public void SaveTilesToFile()
         {
+            if (GameWon)
+                return;
+
             byte[] bytesToSave;
 
             BinaryFormatter binaryFormatter = new BinaryFormatter();
@@ -162,6 +165,9 @@ namespace gameoff2018
 
         public void LoadTilesFromFile()
         {
+            if (GameWon)
+                return;
+
             byte[] bytesLoaded;
             try
             {
@@ -202,6 +208,9 @@ namespace gameoff2018
 
         public bool IsLavaCollision(double playerY)
         {
+            if (GameWon)
+                return false;
+
             return playerY < LavaHeight;
         }
 
@@ -233,6 +242,9 @@ namespace gameoff2018
         /// <returns></returns>
         public CollisionOutcome IsIntersectionWithLevel(double playerX, double playerY)
         {
+            if (GameWon)
+                return CollisionOutcome.None;
+
             BoundingBox boundingBox = GetPlayerBoundingBoxTiles(playerX, playerY);
             return BBLevelIntersection(boundingBox);
         }
@@ -245,6 +257,9 @@ namespace gameoff2018
         /// <returns></returns>
         public CollisionOutcome BBLevelIntersection(BoundingBox bb)
         {
+            if (GameWon)
+                return CollisionOutcome.None;
+
             int McLeftTile = Convert.ToInt32(Math.Floor(bb.Left));
             int McRightTile = Convert.ToInt32(Math.Floor(bb.Right));
             int McBottomTile = Convert.ToInt32(Math.Floor(bb.Bottom));
@@ -276,6 +291,9 @@ namespace gameoff2018
         /// <param name="elapsedTime"></param>
         public void ProcessPlayerMovement(KeyboardState prevKeyState, KeyboardState keyState, double elapsedTime)
         {
+            if (GameWon)
+                return;
+
             if (EditorMode)
             {
                 if (keyState.IsKeyDown(Key.F1) && !prevKeyState.IsKeyDown(Key.F1))
@@ -360,6 +378,9 @@ namespace gameoff2018
 
         public void MouseMove(MouseMoveEventArgs e, int screenHeight, int screenWidth)
         {
+            if (GameWon)
+                return;
+
             if (EditorMode)
             {
                 Vector2d worldCoords = ConvertScreenToWorldCoords(
@@ -390,6 +411,9 @@ namespace gameoff2018
             SpriteAnimationPosition += elapsedTime * Constants.SPRITE_SUIT_FPS / Constants.SPRITE_SUIT_FRAMES;
             if (SpriteAnimationPosition > 1.0)
                 SpriteAnimationPosition -= 1.0;
+
+            if (GameWon)
+                return;
 
             if (!EditorMode)
                 LavaHeight += elapsedTime * LavaSpeedPerLevel[LevelNumber - 1];
