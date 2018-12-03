@@ -70,7 +70,7 @@ namespace gameoff2018
 
             while (FrameTimeCounter > interval)
             {
-                Level.Update(LatestKeyState, Keyboard.GetState(), e.Time);
+                Level.Update(LatestKeyState, Keyboard.GetState(), interval);
                 FrameTimeCounter -= interval;
             }
 
